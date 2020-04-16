@@ -1,4 +1,11 @@
--- @example Implementation of a simple firespread model using a Emas map data.
+-- @example Implementation of a simple Biomass Growth  model using a Emas map data.
+-- The data comes from TerraME firespread model that was proposed by Almeida, Rodolfo M., et al. (in portuguese)
+--  'Simulando padroes de incendios no Parque Nacional das Emas, Estado de Goias, Brasil.' X Simposio Brasileiro de
+--  Geoinfoamatica (2008).
+-- A simple spread model that uses geospatial data. It simulates a fire in Parque Nacional das Emas, in Goias state, Brazil.
+--  The biomass growth has a constant growth rate of the biomass stored in each cell that changes the biomass stats
+-- to BIOMASS1, BIOMASS2, BIOMASS3, BIOMASS4 and then BIOMASS5.
+-- @image ssdBiomassGrowthEmas.png
 
 import("ssd")
 --dofile("../lua/Flow.lua") --Arquivo deve ser colocado no HOME

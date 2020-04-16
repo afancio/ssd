@@ -1,4 +1,11 @@
--- @example Implementation of a simple biomass grow and burn and firespread model using stocatisca data.
+-- @example Implementation of an integration of two simple models biomass growth and fire spread model using stochastic data.
+-- A simple spread model that uses geospatial data. It simulates a fire in Parque Nacional das Emas, in Goias state, Brazil.
+-- The biomass growth has a constant growth rate of the biomass stored in each cell that changes the selected biomass stats
+-- of GRASS, FOREST and DENSE_FOREST to GRASS, FOREST and DENSE_FOREST.
+-- Integrated to it, the fire spread model has two flows:
+-- 1) Heat propagation that propagates from each cell to his neights (3x3 moore) that has state GRASS, FOREST and
+--  DENSE_FOREST and a stochastic chance of burning.
+-- 2) Biomass burns that change the biomass stats to BURNED.
 -- @image ssdFireSpreadBiomassGrowAndBurning.bmp
 
 import("ssd")

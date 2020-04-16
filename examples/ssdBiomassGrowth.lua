@@ -1,5 +1,7 @@
-
 -- @example Implementation of a simple biomass growth model using stocatisca data.
+-- A simple spread model that uses geospatial data. It simulates a fire in Parque Nacional das Emas, in Goias state, Brazil.
+-- The biomass growth has a constant growth rate of the biomass stored in each cell that changes the selected biomass stats
+--  of GRASS, FOREST and DENSE_FOREST to GRASS, FOREST and DENSE_FOREST.
 -- @image ssdBiomassGrowth.bmp
 
 import("ssd")

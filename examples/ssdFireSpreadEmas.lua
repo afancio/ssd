@@ -1,5 +1,14 @@
--- @example Implementation of a simple firespread model using map data.
-
+-- @example Implementation of an integration of two simple models biomass growth and fire spread model using Emas map data.
+-- The data comes from TerraME firespread model that was proposed by Almeida, Rodolfo M., et al. (in portuguese)
+--  'Simulando padroes de incendios no Parque Nacional das Emas, Estado de Goias, Brasil.' X Simposio Brasileiro de
+--  Geoinfoamatica (2008).
+-- A simple spread model that uses geospatial data. It simulates a fire in Parque Nacional das Emas, in Goias state, Brazil.
+-- The biomass growth has a constant growth rate of the biomass stored in each cell that changes the biomass stats
+--  to BIOMASS1, BIOMASS2, BIOMASS3, BIOMASS4 and then BIOMASS5.
+-- Integrated to it, the fire spread model has two flows:
+-- 1) Heat propagation that propagates from each cell to his neights (3x3 moore) that has state BIOMASS(1, 2, 3, 4 and 5).
+-- 2) Biomass burn that changes the biomass stats to BURNING and then BURNED.
+-- @image ssdFireSpreadEmas.png
 
 import("ssd")
 --dofile("../lua/Flow.lua") --Arquivo deve ser colocado no HOME

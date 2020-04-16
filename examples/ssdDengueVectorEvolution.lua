@@ -1,6 +1,8 @@
--- @example The model shows changes in the number of mosquitoes per stage of life: Eggs, Larva, Pulp and Mosquito.
+-- @example The model shows changes in the number of mosquitoes per stage of life: Eggs, Larvas, Pulps and Mosquitos.
+--  Each cell has the temperature (based on cell position (x+y*5) = 0 to 40) parameters that control the
+--  evolution of each stage.
 -- Stage changes and mortality rates are described through the interpretation of the equations [Lana et. al 2011] and
--- are based in the temperature pharameter.
+-- are based on the temperature parameter.
 -- Reference: Lana, R. M., T. G. Carneiro, N. A. Honório, and C. T. Codeço. (2011) “Multiscale Analysis and Modelling
 -- of Aedes aegyti Population Spatial Dynamics”. Journal of Information and Data Management 2 (2): 211.
 -- @image ssdDengueVectorEvolution4Graphs.png
