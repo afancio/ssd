@@ -5,7 +5,7 @@
 -- After some time, infected become recovered, which cannot be infected again.
 -- For mode details visit http://en.wikipedia.org/wiki/Epidemic_model.
 
--- @image ssdSIR2ParametersFeedBackLoop.bmp
+-- @image ssdPredatorPrey40002Graphs.png
 
 import("ssd")
 --dofile("../lua/Flow.lua")

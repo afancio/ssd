@@ -1,7 +1,7 @@
 -- @example Based on: TerraME Prey-Predator dynamic model based on differental equations.
 -- Especially for these model que use the "delta = 0.0625" flow pharameter.
 -- It changes de interval off integration and alow a better vizualization of predator prey model.
--- @image ssdPredatorPrey40002Graphs.png
+-- @image ssdPredatorNeight.png
 
 import("ssd")
 --dofile("../lua/Flow.lua")

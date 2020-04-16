@@ -1,9 +1,7 @@
--- @example Implementation of a simple runoff model using geospatial data.
--- There is an initial rain in the highest cells.
--- The Neighborhood of a Cell is composed by its Moore neighbors that
--- have lower height.
--- Each cell then sends its water equally to all neighbors.
--- @image ssdWaterCicle3VerticalZonalPrecipitationAndRumOff.bmp
+-- @example Implementation of a simple rain and runoff model using geospatial data.
+-- There is an initial rain in the highest cells. The Neighborhood of a Cell is composed by its Moore neighbors that
+-- have lower height. Each cell then sends its water equally to all neighbors.
+-- @image ssdWaterCicle3recipitationAndRumOff.bmp
 
 import("ssd")
 --dofile("../lua/Flow.lua") --Arquivo deve ser colocado no HOME

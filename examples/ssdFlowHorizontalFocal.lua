@@ -1,4 +1,4 @@
--- @example Implementation of a simple vertical local Flow.
+-- @example Implementation of a simple horizontal local Flow.
 -- @image ssdFlowHorizontalFocal.png
 
 import("ssd")

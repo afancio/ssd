@@ -1,5 +1,5 @@
--- @example Implementation of a simple runoff model using geospatial data.
--- @image ssdWaterCicle1LocalPrecipitation.bmp
+-- @example Implementation of a simple precipitation from out off sistem using geospatial data.
+-- @image ssdWaterCicle1Precipitation.bmp
 
 import("ssd")
 --dofile("../lua/Flow.lua")
