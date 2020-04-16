@@ -1,0 +1,415 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+	    
+	    	<title>ssd - Spatial System Dynamics</title>
+	    
+	    <link rel="stylesheet" href="../luadoc.css" type="text/css" />
+		<!--meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/-->
+	</head>
+
+	<body>
+		<div id="container">
+			<div id="product">
+				<div id="product_logo">
+					
+					<img src='../img/logo.png'/><br/></div>
+					
+				<div id="product_name"><big><b></b></big></div>
+				<div id="product_description"></div>
+			</div> <!-- id="product" -->
+
+			<div id="main">
+				<div id="navigation">
+					<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+
+<h1>ssd</h1>
+<ul>
+	
+		<li><a href="../index.html">Index</a></li>
+	
+</ul>
+
+<!-- Module list -->
+
+
+<!-- Models list -->
+
+	
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+
+	
+
+
+<!-- Types list -->
+
+	
+	
+		
+			
+		
+	
+		
+			
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+
+	
+		<h1>Types</h1>
+	
+
+	<ul>
+		
+					<li>
+						<a href="../files/Connector.html">Connector</a>
+					</li>
+				
+			
+		
+					<li><strong>Flow</strong></li>
+				
+			
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+	</ul>
+
+
+<!-- Files list -->
+
+	
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+
+	
+
+	<ul>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+	</ul>
+
+
+<!-- Examples -->
+
+	
+		<h1><a href="../files/examples.html">Examples</a></h1>
+	
+
+
+
+<!-- Data -->
+
+
+<!-- Font -->
+
+
+
+				</div> <!-- id="navigation" -->
+
+				<div id="content">
+					<h1>Flow
+					
+					
+					</h1>
+
+					
+						<span class="description"></span>
+					
+					
+					
+					
+
+					
+						
+						<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+
+
+<span class="description">
+
+A Flow operation represents continuous transference of energy between two spatial <a href=../files/Connector.html>Connectors</a>. The differential equation supplied as the first operator parameter determines the amount of energy. transferred between regions. (Pre Stage) At the beginning of the simulation, all collections created by the modeler are. synchronized through the TerraME's synchronize() function.<br><br></span>
+
+
+
+
+<!-- Function arguments -->
+  <h3>Arguments</h3>
+<ul><span class="arg">
+
+    <li>
+	  <strong>rule</strong>: : Differential equation that describes, as a function of one or two parameters, the rate of change (point derivative) of energy f (t, y) at time t, where t is the simulation current instant time, and y is the past value of the rate of change f ().
+    </li> 
+    
+  
+    <li>
+	  <strong>source</strong>: : Connector that defines the collection of cells that will be used to calculate the Flow the source.
+    </li> 
+    
+  
+    <li>
+	  <strong>target</strong>: : Connector that defines the collection of cells that will be used to target the calculated Flow from the Flow the source.
+    </li> 
+    
+  
+  </span></ul>
+
+
+
+
+
+
+
+<h3>Usage</h3>
+<pre class="example"><code><span class="id">import</span>(<span class="string">"ssd"</span>)
+<span class="id">cell</span> = <span class="function">Cell</span> {
+<span class="id">stock</span> = <span class="number">100</span>
+}
+<span class="id">cell2</span> = <span class="function">Cell</span> {
+<span class="id">stock</span> = <span class="number">0</span>
+}
+<span class="id">cs</span> = <span class="function">CellularSpace</span> {
+<span class="id">xdim</span> = <span class="number">3</span>,
+<span class="id">instance</span> = <span class="id">cell</span>
+}
+<span class="id">cs2</span> = <span class="function">CellularSpace</span> {
+<span class="id">xdim</span> = <span class="number">3</span>,
+<span class="id">instance</span> = <span class="id">cell2</span>
+}
+<span class="id">timer</span> = <span class="function">Timer</span> {
+<span class="function">Event</span> {
+<span class="id">action</span> = <span class="reserved">function</span>()
+<span class="id">cs</span>:<span class="id">synchronize</span>()
+<span class="id">cs2</span>:<span class="id">synchronize</span>()
+<span class="reserved">return</span> <span class="reserved">false</span>
+<span class="reserved">end</span>
+},
+}
+<span class="comment">-- ConnectorS</span>
+<span class="id">cs_localCnt</span> = <span class="function">Connector</span> {
+<span class="id">collection</span> = <span class="id">cs</span>,
+<span class="id">attribute</span> = <span class="string">"stock"</span>
+}
+<span class="id">cs2_localCnt</span> = <span class="function">Connector</span> {
+<span class="id">collection</span> = <span class="id">cs2</span>,
+<span class="id">attribute</span> = <span class="string">"stock"</span>
+}
+<span class="comment">-- Flow OPERATORS</span>
+<span class="id">vertical_local_Flow</span> = <span class="function">Flow</span> {
+<span class="id">rule</span> = <span class="reserved">function</span>(<span class="id">t</span>, <span class="id">stock</span>) <span class="reserved">return</span> <span class="number">0.5</span> * <span class="id">stock</span> <span class="reserved">end</span>,
+<span class="id">source</span> = <span class="id">cs_localCnt</span>,
+<span class="id">target</span> = <span class="id">cs2_localCnt</span>,
+<span class="id">timer</span> = <span class="id">timer</span>
+}
+<span class="comment">-- MODEL EXECUTION</span>
+<span class="id">timer</span>:<span class="id">run</span>(<span class="number">1</span>)</code></pre>
+
+
+
+
+</dd>
+
+
+						
+						
+
+						
+						</table>
+					
+
+					
+
+					
+
+					
+
+				</div> <!-- id="content" -->
+			</div> <!-- id="main" -->
+
+			<div id="about">
+				<p>This webpage was automatically created using <a target="_blank" href="http://www.terrame.org">TerraME</a>.</p>
+			</div> <!-- id="about" -->
+
+		</div> <!-- id="container" -->	
+	</body>
+</html>
+

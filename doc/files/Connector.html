@@ -1,0 +1,420 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+	    
+	    	<title>ssd - Spatial System Dynamics</title>
+	    
+	    <link rel="stylesheet" href="../luadoc.css" type="text/css" />
+		<!--meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/-->
+	</head>
+
+	<body>
+		<div id="container">
+			<div id="product">
+				<div id="product_logo">
+					
+					<img src='../img/logo.png'/><br/></div>
+					
+				<div id="product_name"><big><b></b></big></div>
+				<div id="product_description"></div>
+			</div> <!-- id="product" -->
+
+			<div id="main">
+				<div id="navigation">
+					<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+
+<h1>ssd</h1>
+<ul>
+	
+		<li><a href="../index.html">Index</a></li>
+	
+</ul>
+
+<!-- Module list -->
+
+
+<!-- Models list -->
+
+	
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+
+	
+
+
+<!-- Types list -->
+
+	
+	
+		
+			
+		
+	
+		
+			
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+
+	
+		<h1>Types</h1>
+	
+
+	<ul>
+		
+					<li><strong>Connector</strong></li>
+				
+			
+		
+					<li>
+						<a href="../files/Flow.html">Flow</a>
+					</li>
+				
+			
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+	</ul>
+
+
+<!-- Files list -->
+
+	
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+
+	
+
+	<ul>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+	</ul>
+
+
+<!-- Examples -->
+
+	
+		<h1><a href="../files/examples.html">Examples</a></h1>
+	
+
+
+
+<!-- Data -->
+
+
+<!-- Font -->
+
+
+
+				</div> <!-- id="navigation" -->
+
+				<div id="content">
+					<h1>Connector
+					
+					
+					</h1>
+
+					
+						<span class="description"></span>
+					
+					
+					
+					
+
+					
+						
+						<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+
+
+<span class="description">
+
+A Connector operation represents an target ou source of nergy, information or matter of a spatial region.<br><br></span>
+
+
+
+
+<!-- Function arguments -->
+  <h3>Arguments</h3>
+<ul><span class="arg">
+
+    <li>
+	  <strong>attribute</strong>: : String - Name of the attribute of the cells contained in the collections over which the <a href=../files/Flow.html>Flow</a> will operate.
+    </li> 
+    
+  
+    <li>
+	  <strong>collection</strong>: : Cellular Space or Trajectory - A collection of cells that will be used to calculate the Flow source or target.
+    </li> 
+    
+  
+    <li>
+	  <strong>neight</strong>: : Neighborhood - Neighborhood name defined on the collection of the energy Flow. Optional.
+    </li> 
+    
+  
+    <li>
+	  <strong>secundaryAttribute</strong>: : String - Name of the attribute of the cells contained in the collections over which the Flow will operate. Optional.
+    </li> 
+    
+  
+  </span></ul>
+
+
+
+
+
+
+
+<h3>Usage</h3>
+<pre class="example"><code><span class="id">import</span>(<span class="string">"ssd"</span>)
+<span class="id">cell</span> = <span class="function">Cell</span> {
+<span class="id">stock</span> = <span class="number">100</span>
+}
+<span class="id">cell2</span> = <span class="function">Cell</span> {
+<span class="id">stock</span> = <span class="number">0</span>
+}
+<span class="id">cs</span> = <span class="function">CellularSpace</span> {
+<span class="id">xdim</span> = <span class="number">3</span>,
+<span class="id">instance</span> = <span class="id">cell</span>
+}
+<span class="id">cs2</span> = <span class="function">CellularSpace</span> {
+<span class="id">xdim</span> = <span class="number">3</span>,
+<span class="id">instance</span> = <span class="id">cell2</span>
+}
+<span class="id">timer</span> = <span class="function">Timer</span> {
+<span class="function">Event</span> {
+<span class="id">action</span> = <span class="reserved">function</span>()
+<span class="id">cs</span>:<span class="id">synchronize</span>()
+<span class="id">cs2</span>:<span class="id">synchronize</span>()
+<span class="reserved">return</span> <span class="reserved">false</span>
+<span class="reserved">end</span>
+},
+}
+<span class="comment">-- ConnectorS</span>
+<span class="id">cs_localCnt</span> = <span class="function">Connector</span> {
+<span class="id">collection</span> = <span class="id">cs</span>,
+<span class="id">attribute</span> = <span class="string">"stock"</span>
+}
+<span class="id">cs2_localCnt</span> = <span class="function">Connector</span> {
+<span class="id">collection</span> = <span class="id">cs2</span>,
+<span class="id">attribute</span> = <span class="string">"stock"</span>
+}
+<span class="comment">-- Flow OPERATORS</span>
+<span class="id">vertical_local_Flow</span> = <span class="function">Flow</span> {
+<span class="id">rule</span> = <span class="reserved">function</span>(<span class="id">t</span>, <span class="id">stock</span>) <span class="reserved">return</span> <span class="number">0.5</span> * <span class="id">stock</span> <span class="reserved">end</span>,
+<span class="id">source</span> = <span class="id">cs_localCnt</span>,
+<span class="id">target</span> = <span class="id">cs2_localCnt</span>,
+<span class="id">timer</span> = <span class="id">timer</span>
+}
+<span class="comment">-- MODEL EXECUTION</span>
+<span class="id">timer</span>:<span class="id">run</span>(<span class="number">1</span>)</code></pre>
+
+
+
+
+</dd>
+
+
+						
+						
+
+						
+						</table>
+					
+
+					
+
+					
+
+					
+
+				</div> <!-- id="content" -->
+			</div> <!-- id="main" -->
+
+			<div id="about">
+				<p>This webpage was automatically created using <a target="_blank" href="http://www.terrame.org">TerraME</a>.</p>
+			</div> <!-- id="about" -->
+
+		</div> <!-- id="container" -->	
+	</body>
+</html>
+
