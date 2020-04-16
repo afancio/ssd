@@ -59,10 +59,14 @@ local function verifyConnectorData(data)
 end
 
 
---- A Connector operation represents an target ou source of nergy, information or matter of a spatial region.
--- @arg data.collection : Cellular Space or Trajectory - A collection of cells that will be used to calculate the Flow source or target.
--- @arg data.attribute : String - Name of the attribute of the cells contained in the collections over which the Flow will operate.
--- @arg data.secundaryAttribute : String - Name of the attribute of the cells contained in the collections over which the Flow will operate. Optional.
+--- A Connector operation represents a target or source of energy, information or matter of a spatial region.
+-- @arg data.collection : Cellular Space or Trajectory - A collection of cells that will be used to calculate
+--  the Flow source or target.
+-- @arg data.attribute : String - Name of the attribute of the cells contained in the collections over which
+--  the Flow will operate.
+-- @arg data.secundaryAttribute : String - Name of the attribute of the cells contained in the collections
+--  over which the Flow will operate. Optional. Atencion. If used, the flow rule must have an extra argument. Ex:
+--  f (t, stock, stock2).
 -- @arg data.neight : Neighborhood - Neighborhood name defined on the collection of the energy Flow. Optional.
 -- @usage -- DONTRUN
 -- import("ssd")

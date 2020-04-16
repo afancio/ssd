@@ -1,6 +1,10 @@
-
--- @example Implementation of a simple vertical local Flow.
--- @image ssdFlowVerticalFuncaoFeedbackLoopAndSecubndaryStock.png
+-- @example Implementation of a simple vertical local Flow that uses tree stocks (source.attribute,
+--  source.secundaryAttribute and  target.attribute) to compose the flow rule. The differential equation that describes,
+--  the rate of change (point derivative) of energy f (t, stock, stock2) at time t, where t is the simulation current
+--  instant time, and stock is the past value of stock and stock2. The order of stocks, if they are used, are
+--  source.attribute, source.secundaryAttribute, target.attribute and target.secundaryAttribute. The model makes a flow
+--  from a product of all stocks involved and stores it in the source.
+-- @image ssdFeedbackLoop2Stock.png
 
 import("ssd")
 --dofile("../lua/Flow.lua") --Arquivo deve ser colocado no HOME

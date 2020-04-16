@@ -678,11 +678,18 @@ end
 
 --- A Flow operation represents continuous transference of energy between two spatial Connectors.
 -- The differential equation supplied as the first operator parameter determines the amount of energy.
--- transferred between regions. (Pre Stage) At the beginning of the simulation, all collections created by the modeler are.
--- synchronized through the TerraME's synchronize() function.
--- @arg data.rule : Differential equation that describes, as a function of one or two parameters, the rate of change (point derivative) of energy f (t, y) at time t, where t is the simulation current instant time, and y is the past value of the rate of change f ().
+-- transferred between regions. (Pre Stage) At the beginning of the simulation, all collections created by the
+--  modeler are synchronized through the TerraME's synchronize() function.
+-- @arg data.rule : Differential equation that describes, as a function up to four parameters, the rate of change
+--  (point derivative) of energy f (t, stock) at time t, where t is the simulation current instant time, and stock is
+--  the past value of the rate of change f (). To one stock uses: f (t, stock), to two stock uses: f (t, stock, stock2),
+--  to tree stock uses: f (t, stock, stock2, stock3) and to tree stock uses: f (t, stock, stock2, stock3, stock4).
+-- The order of stocks, if they are used, are source.attribute, source.secundaryAttribute, target.attribute
+--  and target.secundaryAttribute.
 -- @arg data.source : Connector that defines the collection of cells that will be used to calculate the Flow the source.
--- @arg data.target : Connector that defines the collection of cells that will be used to target the calculated Flow from the Flow the source.
+-- @arg data.target : Connector that defines the collection of cells that will be used to target the calculated Flow
+--  from the Flow the source.
+-- @arg data.feedbackLoop : boolean control. If true, the souce attributes will be included to flow rule.
 -- @usage -- DONTRUN
 -- import("ssd")
 -- cell = Cell {
