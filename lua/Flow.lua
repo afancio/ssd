@@ -750,7 +750,7 @@ local function verifyFlowData(data)
         data.a = 1
     end
     if data.b == nil then
-        data.b = 5000
+        --data.b = 5000
     end
     if data.delta == nil then
         data.delta = 1
@@ -783,76 +783,76 @@ end
 -- from the Flow the source.
 -- @arg data.feedbackLoop : boolean control. If true, the souce attributes will be included to flow rule.
 -- @usage DONTRUN
---import("ssd")
+-- import("ssd")
 -- ---------------------------------------------------------------
 -- -- # SPACE # Creation
---emptyCell = Cell {
---    stock = 0
---}
---fullCell = Cell {
---    stock = 100
---}
---cs = CellularSpace {
---    xdim = 9,
---    instance = fullCell
---}
---cs2 = CellularSpace {
---    xdim = 9,
---    instance = emptyCell
---}
+-- emptyCell = Cell {
+-- stock = 0
+-- }
+-- fullCell = Cell {
+-- stock = 100
+-- }
+-- cs = CellularSpace {
+-- xdim = 9,
+-- instance = fullCell
+-- }
+-- cs2 = CellularSpace {
+-- xdim = 9,
+-- instance = emptyCell
+-- }
 --
---mapCs = Map {
---    target = cs,
---    select = "stock",
---    min = 0,
---    max = 100,
---    slices = 10,
---    color = "Blues"
---}
---mapCs2 = Map {
---    target = cs2,
---    select = "stock",
---    min = 0,
---    max = 100,
---    slices = 10,
---    color = "Blues"
---}
+-- mapCs = Map {
+-- target = cs,
+-- select = "stock",
+-- min = 0,
+-- max = 100,
+-- slices = 10,
+-- color = "Blues"
+-- }
+-- mapCs2 = Map {
+-- target = cs2,
+-- select = "stock",
+-- min = 0,
+-- max = 100,
+-- slices = 10,
+-- color = "Blues"
+-- }
 -----------------------------------------------------------------
 -- -- Timer DECLARATION
 -- timer = Timer {
---    Event {
---        action = function()
---            cs:synchronize()
---            cs2:synchronize()
---            return false
---        end
---    },
---    Event { action = mapCs },
---    Event { action = mapCs2 }
---}
+-- Event {
+-- action = function()
+-- cs:synchronize()
+-- cs2:synchronize()
+-- return false
+-- end
+-- },
+-- Event { action = mapCs },
+-- Event { action = mapCs2 }
+-- }
 --
 -- ----------------------------------------------------------------------
 -- -- CHANGE RATES AND RULES
---verticalDispersion_rate = 0.5
---verticalDispersion_rule = function(t, stock) return verticalDispersion_rate * stock end
+-- verticalDispersion_rate = 0.5
+-- verticalDispersion_rule = function(t, stock) return verticalDispersion_rate * stock end
 -- ----------------------------------------------------------------------
 -- -- ConnectorS
---cs_localCnt = Connector {
---    collection = cs,
---    attribute = "stock"
---}
---cs2_localCnt = Connector {
---    collection = cs2,
---    attribute = "stock"
---}
+-- cs_localCnt = Connector {
+-- collection = cs,
+-- attribute = "stock"
+-- }
+-- cs2_localCnt = Connector {
+-- collection = cs2,
+-- attribute = "stock"
+-- }
 -- ---------------------------------------------------------------
 -- -- Flow OPERATORS
---local_Flow = Flow {
---    rule = verticalDispersion_rule,
---    source = cs_localCnt,
---    target = cs2_localCnt
---}
---timer:run(1)
+-- local_Flow = Flow {
+-- rule = verticalDispersion_rule,
+-- source = cs_localCnt,
+-- target = cs2_localCnt
+-- }
+-- timer:run(1)
 function Flow(data)
     data.type = "Flow"
     verifyFlowData(data)
@@ -900,7 +900,9 @@ function Flow(data)
                 data.target.collection, data.target.attribute, data.target.secundaryAttribute, data.target.neight,
                 data.feedbackLoop)
             --print ("event:getTime()", event:getTime(), "data.b", data.b)
-            if (event:getTime() >= data.b) then return false end
+            if (data.b ~= nil) then
+                if (event:getTime() >= data.b) then return false end
+            end
         end
     })
     -- (Stage 2) Synchronization - Temporary copies of the cells of the collections affected by the Flow
@@ -924,22 +926,25 @@ function Flow(data)
                     synchronizedOptimization({ collection = data.target.collection, eventTime = event:getTime() })
                 end
             end
-            if (event:getTime() >= data.b) then return false end
+            if (data.b ~= nil) then
+                if (event:getTime() >= data.b) then return false end
+            end
         end
     })
 end
+
 --
-----TESTE DE FUNCIONAMENTO 1 -- OK--- A Flow operation represents continuous transference of energy between two spatial Connectors.
+--- -TESTE DE FUNCIONAMENTO 1 -- OK--- A Flow operation represents continuous transference of energy between two spatial Connectors.
 ----- Flow rum creates a Environment and add local timer and global _flowTimer to it and run until finalTime.
 ---- @arg data.timer local timer.
 ---- @arg data.finalTime total time of simulation.
---function FlowRun(data)
---    env = Environment {
---        data.timer,
---        _flowTimerfinalTime
---    }
---    env:run(data.finalTime)
---end
+-- function FlowRun(data)
+-- env = Environment {
+-- data.timer,
+-- _flowTimerfinalTime
+-- }
+-- env:run(data.finalTime)
+-- end
 
 --END
 
@@ -1012,15 +1017,15 @@ ___oldTimerFactory = Timer
 --- Creates a global timer where the flow events will be storeged ___userDefinedTimer.
 -- @arg eventsTable A set of Events.
 -- @usage timer = Timer{
---     Event{action = function()
---         print("each time step")
---     end},
---     Event{period = 2, action = function()
---         print("each two time steps")
---     end},
---     Event{priority = "high", period = 4, action = function()
---         print("each four time steps")
---     end}
+-- Event{action = function()
+-- print("each time step")
+-- end},
+-- Event{period = 2, action = function()
+-- print("each two time steps")
+-- end},
+-- Event{priority = "high", period = 4, action = function()
+-- print("each four time steps")
+-- end}
 -- }
 --
 -- timer:run(10)
