@@ -1,6 +1,6 @@
 -- @example Implementation of a simple precipitation from out off sistem using geospatial data.
 -- Each cell in a cellular space suffer an energy variation in its attribute
--- stock (water) at a rate defined by f (t, y) (linear_precipitation_rule),
+-- stock (water) at a rate defined by f (t, y) (linear_precipitation_rule).
 -- @image ssdWaterCicle1Precipitation.png
 
 import("ssd")

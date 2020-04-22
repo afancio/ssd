@@ -1,7 +1,7 @@
 -- @example Implementation of a simple vertical Zonal Flow.
 -- Each cell in a trajectory transfers part of its attribute stock at a
 -- rate defined by f (t, y) to the spatially corresponding cell attribute
--- of another cellular space,
+-- of another cellular space.
 -- @image ssdFlowVerticalZonal.png
 
 import("ssd")

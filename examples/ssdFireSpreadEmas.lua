@@ -8,7 +8,7 @@
 -- Integrated to it, the fire spread model has two flows:
 -- 1) Heat propagation that propagates from each cell to his neights (3x3 moore) that has state BIOMASS(1, 2, 3, 4 and 5).
 -- 2) Biomass burn that changes the biomass stats to BURNING and then BURNED.
--- @image ssdFireSpreadEmas.png
+-- @image ssdFireSpreadEmas.bmp
 
 import("ssd")
 

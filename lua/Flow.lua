@@ -700,7 +700,6 @@ local function synchronizedOptimization(data)
     end
 end
 
-_flowTimer = Timer()
 local function verifyFlowData(data)
     if data.rule == nil then
         customError("Atrribute rule is necessary. Add f = f(x) to Flow call.")
@@ -715,21 +714,6 @@ local function verifyFlowData(data)
     elseif data.target.type ~= "Connector" then
         customError("Invalid type. Flow only work with Connector, got " .. type(data.target.type) .. ".")
     end
-    --- LINHA 641 - lua/flow.lua PEDRO - Não consigo realizar o acesso ao timer global de um modelo do TerraME
-    -- nas verssões anteriores eu fazia a atribuição do timer como abaixo para quando o usuário não o informa
-    -- como parâmetro. Mas ao rodar o -test para gerar o pacote ele não permite. Gerando o erro:
-    -- Testing ssdBiomassGrowth
-    -- Error in example: Error: attempt to index a nil value (field 'timer')
-    -- Stack traceback:
-    -- File '..._SD_FLOW/packageToTerraMERC9/ssdGlobalTimer/lua/Flow.lua', line 747, in function 'Flow', in operator [] (index)
-    -- File '...oTerraMERC9/ssdGlobalTimer/examples/ssdBiomassGrowth.lua', line 148, in function 'result'
-    -- Boa dia Tiago, passei a manhã analisando a solução do Pedro, ela seviria para o caso de modelos que não temos o timer
-    -- , mas isso é nosso caso, todos os exemplos eu ja criei um timer e quero adicionar os eventos do flow nesse timer.
-    -- Com a solução do Pedro eu fico com dois Timers e os flows saõ adicionados nesse novo timer.
-    -- O Cenário é outro:
-    -- O usuário cria um timer, chama o flow e em seguida faz a chamada do timer:run()
-    -- Com a solução do Pedro, eu instancio um novo timer e os eventos do flow são adicionados nele.
-    -- E não no timer criado pelo usuário e que rodará o run()
     if data.timer == nil then -- Não é quando ele não foi criado, mas sim quando ele não foi informado.
         --data.timer =  Timer() --Solução Pedro
         data.timer = ___userDefinedTimer
@@ -997,6 +981,21 @@ Timer_ = {
 -- To overload Timer factory keeping compatibility with previows models, it is necessary to save the original Timer factory before
 ___oldTimerFactory = Timer
 --print(Timer, type(Timer))  -- uncomment this line to understand what I am doing
+--- Creates a global timer where the flow events will be storeged ___userDefinedTimer.
+-- @arg eventsTable A set of Events.
+-- @usage timer = Timer{
+--     Event{action = function()
+--         print("each time step")
+--     end},
+--     Event{period = 2, action = function()
+--         print("each two time steps")
+--     end},
+--     Event{priority = "high", period = 4, action = function()
+--         print("each four time steps")
+--     end}
+-- }
+--
+-- timer:run(10)
 Timer = function(self, eventsTable) -- overloading
 
     -- save in a global variable the user defined Timer

@@ -86,8 +86,6 @@
 	
 		
 	
-		
-	
 
 	
 
@@ -102,8 +100,6 @@
 	
 		
 			
-		
-	
 		
 	
 		
@@ -183,15 +179,12 @@
 		
 		
 		
-		
 	</ul>
 
 
 <!-- Files list -->
 
 	
-	
-		
 	
 		
 	
@@ -264,7 +257,6 @@
 		
 		
 		
-		
 	</ul>
 
 
@@ -307,7 +299,7 @@
 
 <span class="description">
 
-A Flow operation represents continuous transference of energy between two spatial <a href=../files/Connector.html>Connectors</a>. The differential equation supplied as the first operator parameter determines the amount of energy. transferred between regions. (Pre Stage) At the beginning of the simulation, all collections created by the modeler are. synchronized through the TerraME's synchronize() function.<br><br></span>
+A Flow operation represents continuous transference of energy between two spatial <a href=../files/Connector.html>Connectors</a>. The differential equation supplied as the first operator parameter determines the amount of energy. transferred between regions. (Pre Stage) At the beginning of the simulation, all collections created by the modeler are synchronized through the TerraME's synchronize() function.<br><br></span>
 
 
 
@@ -317,7 +309,12 @@ A Flow operation represents continuous transference of energy between two spatia
 <ul><span class="arg">
 
     <li>
-	  <strong>rule</strong>: : Differential equation that describes, as a function of one or two parameters, the rate of change (point derivative) of energy f (t, y) at time t, where t is the simulation current instant time, and y is the past value of the rate of change f ().
+	  <strong>feedbackLoop</strong>: : boolean control. If true, the souce attributes will be included to flow rule.
+    </li> 
+    
+  
+    <li>
+	  <strong>rule</strong>: : Differential equation that describes, as a function up to four parameters, the rate of change  (point derivative) of energy f (t, stock) at time t, where t is the simulation current instant time, and stock is  the past value of the rate of change f (). To one stock uses: f (t, stock), to two stock uses: f (t, stock, stock2),  to tree stock uses: f (t, stock, stock2, stock3) and to tree stock uses: f (t, stock, stock2, stock3, stock4). The order of stocks, if they are used, are source.attribute, source.secundaryAttribute, target.attribute  and target.secundaryAttribute.
     </li> 
     
   
@@ -393,11 +390,236 @@ A Flow operation represents continuous transference of energy between two spatia
 						
 
 						
+							<h2 class="function_list">Functions</h2>
+							<table class="function_list">
+							
+								
+									<tr>
+										<td class="name" nowrap><a href="#integrationHeun">integrationHeun</a>&nbsp;
+<td class="summary">Implements the Heun (Euler Second Order) Method to integrate ordinary differential equations.</td>
+									</tr>
+								
+							
+								
+									<tr>
+										<td class="name" nowrap><a href="#integrationRungeKutta">integrationRungeKutta</a>&nbsp;
+<td class="summary">Implements the Runge-Kutta Method (Fourth Order) to integrate ordinary differential equations.</td>
+									</tr>
+								
+							
+								
+									<tr>
+										<td class="name" nowrap><a href="#Timer">Timer</a>&nbsp;
+<td class="summary">Creates a global timer where the flow events will be storeged ___userDefinedTimer.</td>
+									</tr>
+								
+							
+						
 						</table>
 					
 
 					
 
+					
+						
+						<dl class="function">
+							
+									<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+
+<dt><h2><a name="integrationHeun">
+
+	</a><strong>integrationHeun</strong>&nbsp;
+
+</h2></dt>
+<dd>
+
+
+<span class="description">
+
+Implements the Heun (Euler Second Order) Method to integrate ordinary differential equations. It is a method of type Predictor-Corrector.<br><br></span>
+
+
+
+
+<!-- Function arguments -->
+  <h3>Arguments</h3>
+<ul><span class="arg">
+
+    <li>
+	  <strong>#1</strong>: The differential equation.
+    </li> 
+    
+  
+    <li>
+	  <strong>#2</strong>: The initial condition that must be satisfied.
+    </li> 
+    
+  
+    <li>
+	  <strong>#3</strong>: The value of 'a' in the interval [a,b[.
+    </li> 
+    
+  
+    <li>
+	  <strong>#4</strong>: The value of 'b' of in the interval [a,b[.
+    </li> 
+    
+  
+    <li>
+	  <strong>#5</strong>: The step of the independent variable.
+    </li> 
+    
+  
+  </span></ul>
+
+
+
+
+
+
+
+<h3>Usage</h3>
+<pre class="example"><code><span class="id">f</span> = <span class="reserved">function</span>(<span class="id">x</span>) <span class="reserved">return</span> <span class="id">x</span>^<span class="number">3</span> <span class="reserved">end</span>
+<span class="id">v</span> = <span class="function">integrationHeun</span>(<span class="id">f</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">3</span>, <span class="number">0.1</span>)</code></pre>
+
+
+
+
+</dd>
+
+
+						    	
+							
+									<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+
+<dt><h2><a name="integrationRungeKutta">
+
+	</a><strong>integrationRungeKutta</strong>&nbsp;
+
+</h2></dt>
+<dd>
+
+
+<span class="description">
+
+Implements the Runge-Kutta Method (Fourth Order) to integrate ordinary differential equations.<br><br></span>
+
+
+
+
+<!-- Function arguments -->
+  <h3>Arguments</h3>
+<ul><span class="arg">
+
+    <li>
+	  <strong>#1</strong>: The differential equation.
+    </li> 
+    
+  
+    <li>
+	  <strong>#2</strong>: The initial condition that must be satisfied.
+    </li> 
+    
+  
+    <li>
+	  <strong>#3</strong>: The value of 'a' in the interval [a,b[.
+    </li> 
+    
+  
+    <li>
+	  <strong>#4</strong>: The value of 'b' of in the interval [a,b[.
+    </li> 
+    
+  
+    <li>
+	  <strong>#5</strong>: The step of the independent variable.
+    </li> 
+    
+  
+  </span></ul>
+
+
+
+
+
+
+
+<h3>Usage</h3>
+<pre class="example"><code><span class="id">f</span> = <span class="reserved">function</span>(<span class="id">x</span>) <span class="reserved">return</span> <span class="id">x</span>^<span class="number">3</span> <span class="reserved">end</span>
+<span class="id">v</span> = <span class="function">integrationRungeKutta</span>(<span class="id">f</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">3</span>, <span class="number">0.1</span>)</code></pre>
+
+
+
+
+</dd>
+
+
+						    	
+							
+									<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+
+<dt><h2><a name="Timer">
+
+	</a><strong>Timer</strong>&nbsp;
+
+</h2></dt>
+<dd>
+
+
+<span class="description">
+
+Creates a global timer where the flow events will be storeged ___userDefinedTimer.<br><br></span>
+
+
+
+
+<!-- Function arguments -->
+  <h3>Arguments</h3>
+<ul><span class="arg">
+
+    <li>
+	  <strong>#1</strong>: A set of Events.
+    </li> 
+    
+  
+  </span></ul>
+
+
+
+
+
+
+
+<h3>Usage</h3>
+<pre class="example"><code><span class="id">timer</span> = <span class="function">Timer</span>{
+    <span class="function">Event</span>{<span class="id">action</span> = <span class="reserved">function</span>()
+        <span class="id">print</span>(<span class="string">"each time step"</span>)
+    <span class="reserved">end</span>},
+    <span class="function">Event</span>{<span class="id">period</span> = <span class="number">2</span>, <span class="id">action</span> = <span class="reserved">function</span>()
+        <span class="id">print</span>(<span class="string">"each two time steps"</span>)
+    <span class="reserved">end</span>},
+    <span class="function">Event</span>{<span class="id">priority</span> = <span class="string">"high"</span>, <span class="id">period</span> = <span class="number">4</span>, <span class="id">action</span> = <span class="reserved">function</span>()
+        <span class="id">print</span>(<span class="string">"each four time steps"</span>)
+    <span class="reserved">end</span>}
+}
+
+<span class="id">timer</span>:<span class="id">run</span>(<span class="number">10</span>)</code></pre>
+
+
+
+
+</dd>
+
+
+						    	
+							
+						</dl>
 					
 
 					

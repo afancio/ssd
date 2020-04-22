@@ -1,7 +1,7 @@
 -- @example Implementation of a simple vertical local Flow.
 -- Each cell in a cellular space transfers part of its attribute stock
 -- at a rate defined by f (t, y) to the spatially corresponding cell
--- attribute of another cellular space,
+-- attribute of another cellular space.
 -- @image ssdFlowVerticalLocal.png
 
 import("ssd")

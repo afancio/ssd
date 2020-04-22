@@ -4,7 +4,7 @@
 -- It starts with a small number of infected that passes the disease to the susceptible ones.
 -- After some time, infected become recovered, which cannot be infected again.
 -- For mode details visit http://en.wikipedia.org/wiki/Epidemic_model.
--- @image ssdPredatorPrey40002Graphs.png
+-- @image ssdSIRFeedBackLoop.bmp
 
 import("ssd")
 
