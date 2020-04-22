@@ -8,6 +8,8 @@
 -- @image ssdBiomassGrowthEmas.png
 
 import("ssd")
+--dofile("../lua/Flow.lua")
+--dofile("../lua/Connector.lua")
 
 -- automaton states
 NODATA = 0
@@ -127,3 +129,14 @@ Flow {
     target = eachBiomassGroundCell
 }
 timer:run(100)
+
+    print("___oldTimerFactory", ___oldTimerFactory, type(___oldTimerFactory))  -- uncomment this line to understand what I am doing
+    print("___userDefinedTimer", ___userDefinedTimer, type(___userDefinedTimer))  -- uncomment this line to understand what I am doing
+print("RESET timer")
+timer:reset()
+--___oldTimerFactory:reset()
+print("RESET ___oldTimerFactory")
+--___userDefinedTimer:reset()
+print("RESET ___userDefinedTimer")
+    print("___oldTimerFactory", ___oldTimerFactory, type(___oldTimerFactory))  -- uncomment this line to understand what I am doing
+    print("___userDefinedTimer", ___userDefinedTimer, type(___userDefinedTimer))  -- uncomment this line to understand what I am doing

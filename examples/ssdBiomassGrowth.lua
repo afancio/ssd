@@ -4,9 +4,9 @@
 -- @image ssdBiomassGrowth.bmp
 
 import("ssd")
+--dofile("../lua/Flow.lua")
+--dofile("../lua/Connector.lua")
 
-randomRate = Random { seed = 1 }
-randomBoolean = Random { true, false }
 ---------------------------------------------------------------
 -- # SPACE # Creation
 cell = Cell {
@@ -155,3 +155,5 @@ BiomassGrowth = Flow {
     target = eachBiomassGroundCell
 }
 timer:run(60)
+--timer:reset()
+--collectgarbage("collect")

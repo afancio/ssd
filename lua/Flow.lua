@@ -933,11 +933,10 @@ function Flow(data)
     })
 end
 
---
---- -TESTE DE FUNCIONAMENTO 1 -- OK--- A Flow operation represents continuous transference of energy between two spatial Connectors.
------ Flow rum creates a Environment and add local timer and global _flowTimer to it and run until finalTime.
----- @arg data.timer local timer.
----- @arg data.finalTime total time of simulation.
+-- TESTE DE FUNCIONAMENTO 1 -- OK--- A Flow operation represents continuous transference of energy between two spatial Connectors.
+-- Flow rum creates a Environment and add local timer and global _flowTimer to it and run until finalTime.
+-- @arg data.timer local timer.
+-- @arg data.finalTime total time of simulation.
 -- function FlowRun(data)
 -- env = Environment {
 -- data.timer,
@@ -1012,8 +1011,9 @@ Timer_ = {
 
 
 -- To overload Timer factory keeping compatibility with previows models, it is necessary to save the original Timer factory before
+--- Creates a global timer where the flow events will be storeged ___userDefinedTimer.
 ___oldTimerFactory = Timer
---print(Timer, type(Timer))  -- uncomment this line to understand what I am doing
+--print("Timer", Timer, type(Timer))  -- uncomment this line to understand what I am doing
 --- Creates a global timer where the flow events will be storeged ___userDefinedTimer.
 -- @arg eventsTable A set of Events.
 -- @usage timer = Timer{
