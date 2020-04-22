@@ -1,18 +1,16 @@
--- @example Implementation of a simple biomass growth model using stocatisca data.
--- A simple spread model that uses geospatial data. It simulates a fire in Parque Nacional das Emas, in Goias state, Brazil.
--- The biomass growth has a constant growth rate of the biomass stored in each cell that changes the selected biomass stats
---  of GRASS, FOREST and DENSE_FOREST to GRASS, FOREST and DENSE_FOREST.
+-- @example Implementation of a simple biomass growth model using stocatisca data. The biomass growth has a
+--  constant growth rate of the biomass stored in each cell that changes the selected biomass stats of GRASS,
+--  FOREST and DENSE_FOREST to GRASS, FOREST and DENSE_FOREST.
 -- @image ssdBiomassGrowth.bmp
 
 import("ssd")
---dofile("../lua/Flow.lua") --Arquivo deve ser colocado no HOME
---dofile("../lua/Connector.lua") --Arquivo deve ser colocado no HOME
-randomRate = Random{seed = 1}
-randomBoolean = Random{true, false}
+
+randomRate = Random { seed = 1 }
+randomBoolean = Random { true, false }
 ---------------------------------------------------------------
--- MODEL
-cell = Cell{
-    biomass = Random{0, 1, 2},
+-- # SPACE # Creation
+cell = Cell {
+    biomass = Random { 0, 1, 2 },
     biomass_state = "FOREST",
     heat = 0,
     state = "forest",
@@ -31,18 +29,18 @@ cell = Cell{
         end
     end
 }
-cs = CellularSpace{
+cs = CellularSpace {
     xdim = 50,
     instance = cell,
 }
-mapCsBiomass_stade = Map{
+mapCsBiomass_stade = Map {
     title = "Biomass",
     target = cs,
     select = "biomass_state",
-    value = {"ROCK", "BURNED", "GRASS", "FOREST", "DENSE_FOREST"},
-    color = {"gray","brown","yellow", "green", "darkGreen"}
+    value = { "ROCK", "BURNED", "GRASS", "FOREST", "DENSE_FOREST" },
+    color = { "gray", "brown", "yellow", "green", "darkGreen" }
 }
-summary = Cell{
+summary = Cell {
     step = 0,
     Biomass_TOTAL_STEP0 = 0,
     Biomass_GROUND_TOTAL = 0,
@@ -50,29 +48,34 @@ summary = Cell{
     Biomass_GROUND_MIN = 999,
     start = false
 }
-chartsummary = Chart{
+chartsummary = Chart {
     target = summary,
     width = 3,
-    select = {"Biomass_GROUND_TOTAL"},
+    select = { "Biomass_GROUND_TOTAL" },
     --labels = {"Total Biomass"},
     style = "lines",
-    color = {"green"},
+    color = { "green" },
     title = "Amount of biomass in the system"
 }
-timer = Timer{
-    Event{start = 0,
+---------------------------------------------------------------
+-- Timer DECLARATION
+timer = Timer {
+    Event {
+        start = 0,
         --period = 1,
         priority = 9,
-        action = cs},
-    Event{action = mapCsBiomass_stade},
-    Event{action = chartsummary},
+        action = cs
+    },
+    Event { action = mapCsBiomass_stade },
+    Event { action = chartsummary },
     --SUMMARY DATA MODEL EVENT
-    Event{start = 0,
+    Event {
+        start = 0,
         --period = 1,
         priority = 9,
         action = function(event)
             print('=========================================================================================================== ')
-            print("BIOMASS VALITDATION STEP: ".. event:getTime())
+            print("BIOMASS VALITDATION STEP: " .. event:getTime())
             summary.Biomass_GROUND_TOTAL = 0
             summary.step = event:getTime()
             --BIOMASS SUMMARY
@@ -85,13 +88,14 @@ timer = Timer{
                 summary.Biomass_TOTAL_STEP0 = summary.Biomass_GROUND_TOTAL
                 summary.start = true
             end
-            print ('TIME:', summary.step ,'summary.Biomass_TOTAL_STEP0', summary.Biomass_TOTAL_STEP0)
-            print ( 'summary.Biomass_GROUND_TOTAL:', summary.Biomass_GROUND_TOTAL)
-            print ( 'summary.Biomass_GROUND_MAX:', summary.Biomass_GROUND_MAX)
-            print ( 'summary.Biomass_GROUND_MIN:', summary.Biomass_GROUND_MIN)
-            print ('----------------------------------------------------------------------------------------------------------')
+            print('TIME:', summary.step, 'summary.Biomass_TOTAL_STEP0', summary.Biomass_TOTAL_STEP0)
+            print('summary.Biomass_GROUND_TOTAL:', summary.Biomass_GROUND_TOTAL)
+            print('summary.Biomass_GROUND_MAX:', summary.Biomass_GROUND_MAX)
+            print('summary.Biomass_GROUND_MIN:', summary.Biomass_GROUND_MIN)
+            print('----------------------------------------------------------------------------------------------------------')
             return true
-        end},
+        end
+    },
     --SAVE MAP AT BEGGIN OF THE SIMULATION
     --[[
     Event{start = 1,
@@ -130,25 +134,24 @@ timer = Timer{
 --}
 -------------------------------------------------------------------
 -- CHANGE RATES AND RULES
-growthRate     = 0.01
-funcGrouwth = function (t,stock) return stock * growthRate end
+growthRate = 0.01
+funcGrouwth = function(t, stock) return stock * growthRate end
 ---------------------------------------------------------------
 -- ConnectorS
---outOfSystem = Connector{
---    collection = nil,
---}
-eachBiomassGroundCell = Connector{
+-- outOfSystem = Connector{
+-- collection = nil,
+-- }
+eachBiomassGroundCell = Connector {
     collection = cs,
     attribute = "biomass"
 }
 ---------------------------------------------------------------
 -- Flow OPERATORS
---ETAPA 1 - Biomass growth
-BiomassGrowth = Flow{
+-- ETAPA 1 - Biomass growth
+BiomassGrowth = Flow {
     rule = funcGrouwth,
-    --source = outOfSystem,
+    --source = outOfSystem, --similar implementation
     source = nil,
-    target = eachBiomassGroundCell,
-    timer = timer
+    target = eachBiomassGroundCell
 }
 timer:run(60)

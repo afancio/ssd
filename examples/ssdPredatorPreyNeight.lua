@@ -1,23 +1,19 @@
 -- @example Based on: TerraME Prey-Predator dynamic model based on differental equations.
 -- Especially for these model que use the "delta = 0.0625" flow pharameter.
 -- It changes de interval off integration and alow a better vizualization of predator prey model.
+-- Spatial Modelation: Each predator in a cellular space preadates the preys of cells in the neighborhood ("neight3x3")
+-- of the spatially corresponding cell of another cellular space.
 -- @image ssdPredatorNeight.png
 
 import("ssd")
---dofile("../lua/Flow.lua")
---dofile("../lua/Connector.lua")
-randomRate = Random{seed = 1}
-randomBoolean = Random{true, false}
+
 ---------------------------------------------------------------
 -- EXPERIMENT DEFINITIONS
-timeStep = 1 / 64 --1/16--1/512--1/256--0.03125 -- See the effects of 0.25, 0.125, 0.0625, and 0.03125
-finalTime = 1000
-DIM_CS = 1
-EXPERIMENT_NAME = "PREY_PREDATOR_Flow"
-NEIGHT = nil
+--timeStep = 1 / 64 --1/16--1/512--1/256--0.03125 -- See the effects of 0.25, 0.125, 0.0625, and 0.03125
 PREYS = 100
 PREDATORS = 10
-
+---------------------------------------------------------------
+-- # SPACE # Creation
 cell = Cell {
     preys = Random{10, 50, 100},-- PREYS, --Random{10, 50, 100},
     predators = PREDATORS, --Random{0, 1, 10, 20},
@@ -78,38 +74,8 @@ chartsummary = Chart {
     title = "Amount of preys and preators in the feild (CellularSpace)"
 }
 
---[[chart = Chart {
-    target = csField,
-    width = 3,
-    select = { "predators", "preys" },
-    label = { "predators", "preys" },
-    style = "lines",
-    color = { "green", "red" },
-    title = "Predator Prey"
-}
-
-chartPhaseSpace = Chart {
-    target = csField,
-    width = 3,
-    xAxis = "preys",
-    select = { "predators" },
-    label = { "predators" },
-    style = "lines",
-    color = { "red" },
-    title = "Phase space"
-}]]
---[[
- chart2 = Chart{
-   target = csField,
-   width = 3,
-   select = {"preysDeath", "predatorsDeath"},
-   labels = {"preysDeath", "predatorsDeath"},
-   style = "lines",
-   color = {"brown", "black"},
-   title = "PREY_PREDATOR-DEATH"
- }
- ]] --
-
+---------------------------------------------------------------
+-- Timer DECLARATION
 timer = Timer {
     Event {
         action = function()
@@ -118,24 +84,10 @@ timer = Timer {
         end
     },
     Event { action = csField },
---    Event { action = chart },
---    Event { action = chartPhaseSpace },
     Event { action = map },
     Event { action = map2 },
     Event { action = chartsummary },
-    --Event{action = chart2},
 
-    --SAVE MODEL EVENT
---[[    Event {
-        start = finalTime,
-        --period = 1,
-        priority = 8,
-        action = function(event)
-            chart:save("../images/ssdPredatorPreyChart.bmp")
-            chartPhaseSpace:save("../images/ssdPredatorPreyChartPhaseSpace.bmp")
-            if (event:getTime() > finalTime) then return false end
-        end
-    }]]
 
     --SUMMARY DATA MODEL EVENT
     Event {
@@ -176,6 +128,8 @@ timer = Timer {
 ---------------------------------------------------------------
 -- INTEGRATION FUNCTION AND CHANGE RATES
 ---------------------------------------------------------------
+---------------------------------------------------------------
+-- Connectors and Flow OPERATORS
 
 birthPreyRate = 0.2
 funcBirthPrey = function(t, stock) return birthPreyRate * stock end
@@ -189,10 +143,8 @@ BirthPrey = Flow {
     delta = 1,
     rule = funcBirthPrey,
     source = nil,
-    target = csField_local_prey,
-    timer = timer
+    target = csField_local_prey
 }
-
 
 --Flow(funcPredation, 1,  finalTime, timeStep,  csField, "preys", nil,  csField, "preysDeath", nil, model)
 predationRate = 0.01 -- death prey rate
@@ -215,8 +167,7 @@ Predation = Flow {
     delta = 0.0625,
     rule = funcPredation,
     source = csField_local_preysPredators,
-    target = csField_local_preysDeath,
-    timer = timer
+    target = csField_local_preysDeath
 }
 --Flow(funcBirthPredatorPerPrey, 1,  finalTime, timeStep, nil, nil, nil,  csField, "predators", nil, model)
 
@@ -233,8 +184,7 @@ BirthPredatorPerPrey = Flow {
     delta = 0.0625,
     rule = funcBirthPredatorPerPrey,
     source = nil,
-    target = csField_local_predatorsPreys,
-    timer = timer
+    target = csField_local_predatorsPreys
 }
 --Flow(funcDeathPredator, 1,  finalTime, timeStep,  csField, "predators", nil,  csField, "predatorsDeath", nil, model)
 
@@ -250,10 +200,8 @@ DeathPredator = Flow {
     delta = 0.0625,
     rule = funcDeathPredator,
     source = csField_local_predators,
-    target = nil,
-    timer = timer
+    target = nil
 }
-
 
 timer:run(2000)
 
@@ -312,9 +260,6 @@ for t = 0, 10000, timeStep do
 end
 
 print("Model outcome: ", ag.preys, ag.predators )
-
-
-
 
 ]]
 

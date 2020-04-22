@@ -2,7 +2,7 @@
 
 ##Introduction
 
-With the Flow package the user is able to directly use 
+With the ssd package the user is able to directly use 
 the Flow operator allows expressing unambiguously the expected 
 spatial behavior in environmental models for different phenomena 
 that can occur simultaneously during the simulation. Thus, 

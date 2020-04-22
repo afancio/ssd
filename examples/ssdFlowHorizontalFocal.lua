@@ -1,8 +1,12 @@
 -- @example Implementation of a simple horizontal local Flow.
+-- Each cell in a cellular space (9x9) transfers part of its attribute stock at
+-- a rate defined by f (t, y) (dispersion_rule) to the attributes of its cells in the neighborhood ("neight3x3").
 -- @image ssdFlowHorizontalFocal.png
 
 import("ssd")
 
+---------------------------------------------------------------
+-- # SPACE # Creation
 emptyCell = Cell {
     stock = 0
 }
@@ -25,8 +29,8 @@ mapCs = Map {
     slices = 10,
     color = "Blues"
 }
-----------------------------------------------------------------------
--- TIMER INSTANTIATION
+---------------------------------------------------------------
+-- Timer DECLARATION
 timer = Timer {
     Event {
         action = function()
@@ -40,8 +44,8 @@ timer = Timer {
 
 ----------------------------------------------------------------------
 -- CHANGE RATES AND RULES
-verticalDispersion_rate = 0.9
-verticalDispersion_rule = function(t, stock) return verticalDispersion_rate * stock end
+dispersion_rate = 0.9
+dispersion_rule = function(t, stock) return dispersion_rate * stock end
 ----------------------------------------------------------------------
 -- ConnectorS
 cs_localCnt = Connector {
@@ -56,10 +60,9 @@ cs_focalCnt = Connector {
 ---------------------------------------------------------------
 -- Flow OPERATORS
 local_Flow = Flow {
-    rule = verticalDispersion_rule,
+    rule = dispersion_rule,
     source = cs_localCnt,
-    target = cs_focalCnt,
-    timer = timer
+    target = cs_focalCnt
 }
 --------------------------------------------------------------
 -- MODEL EXECUTION

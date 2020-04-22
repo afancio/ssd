@@ -4,13 +4,10 @@
 -- It starts with a small number of infected that passes the disease to the susceptible ones.
 -- After some time, infected become recovered, which cannot be infected again.
 -- For mode details visit http://en.wikipedia.org/wiki/Epidemic_model.
-
 -- @image ssdPredatorPrey40002Graphs.png
 
 import("ssd")
---dofile("../lua/Flow.lua")
---dofile("../lua/Connector.lua")
-simulationTime = 100
+
 ---------------------------------------------------------------
 -- PARAMETER
 ---------------------------------------------------------------
@@ -19,10 +16,8 @@ INITIAL_INFECTED = 1
 CONTACTS_PER_INFECTION_DAY = 1
 CONTAGION_STRENGTH = 0.4
 INFECTIOUS_PERIOD = 4
-
 ---------------------------------------------------------------
--- CREATION OPERATOR
----------------------------------------------------------------
+-- # SPACE # Creation
 cell = Cell {
     susceptible = TOTAL - INITIAL_INFECTED,
     infected = INITIAL_INFECTED,
@@ -44,48 +39,12 @@ chart = Chart {
     color = { "blue", "red", "green" },
     title = "SIR"
 }
-
+---------------------------------------------------------------
+-- Timer DECLARATION
 timer = Timer {
     Event { action = csCity },
     Event { action = chart },
-    --[[Event {
-        --start = 1,
-        --period = 1,
-        --priority = 0,
-        action = function(event)
-            local infec = 1
-            forEachCell(csCity, function(cell)
-                infec = cell.past["infected"]
-            end)
-            infectionRate = infectionRate * infec
-            if (event:getTime() >= simulationTime) then return false end
-        end
-    },
-    Event {
-        start = 0,
-        --period = 1,
-        priority = 8,
-        action = function(event)
-            local infec2 = 1
-            forEachCell(csCity, function(cell)
-                infec2 = cell.past["infected"]
-            end)
-            infectionRate = infectionRate / infec2
-            if (event:getTime() >= simulationTime) then return false end
-        end
-    },]]
-    --SAVE MODEL EVENT
---    Event {
---        start = simulationTime,
---        --period = 1,
---        priority = 8,
---        action = function(event)
---            chart:save("../images/ssdSIR2ParametersFeedBackLoop.bmp")
---            if (event:getTime() > simulationTime) then return false end
---        end
---    }
 }
-
 
 ---------------------------------------------------------------
 -- INTEGRATION FUNCTION AND CHANGE RATES
@@ -116,18 +75,16 @@ infect = Flow {
     rule = funcInfect,
     source = csCity_local_susceptible,
     target = csCity_local_infected,
-    feedbackLoop = true,
-    timer = timer
+    feedbackLoop = true
 }
 
 recover = Flow {
     rule = funcRecover,
     source = csCity_local_infected,
     target = csCity_local_recovered,
-    timer = timer
 }
-timer:run(simulationTime)
-print(R0)
+timer:run(100)
+print("R0",R0)
 --[[
 --ORIGINAL MODEL
 -- Lesson: SIR model - Simulating communicable disease transmission through individual

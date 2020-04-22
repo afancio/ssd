@@ -8,18 +8,9 @@
 -- @image ssdDengueVectorEvolution4Graphs.png
 
 import("ssd")
---dofile("../lua/Flow.lua")
---dofile("../lua/Connector.lua")
 
 ---------------------------------------------------------------
--- PARAMETER
----------------------------------------------------------------
-
---temperature = 30 --35--30--25--30 --25
---random = Random { seed = 1 }
---------------------
 -- # SPACE # Creation
---------------------
 cell = Cell {
     temperature = 30,
     eggs = 600, --random:integer(0, 600),--600,--random:integer(0, 600),
@@ -97,26 +88,8 @@ chartSummaryM = Chart {
     yLabel = "Amount"
 }
 
-
-txO1 = 0.01 -- 0,0003333333
-funcO1 = function(t, stock, stock2) return txO1 * stock * stock2 end
-
-txO2 = 0.0042424242 -- 0,0001388889
-funcO2 = function(t, stock, stock2) return txO2 * stock * stock2 end
-
-txO3 = 0.0104848485 --0,0003588889
-funcO3 = function(t, stock, stock2) return txO3 * stock * stock2 end
-
-txM1 = 1 / 100
-funcFlowM1 = function(t, stock) return txM1 * stock end
-txM2 = 1 / 3
-funcFlowM2 = function(t, stock) return txM2 * stock end
-txM3 = 1 / 70
-funcFlowM3 = function(t, stock) return txM3 * stock end
-txM4 = 1 / 17.5
-funcFlowM4 = function(t, stock) return txM4 * stock end
-
-
+---------------------------------------------------------------
+-- Timer DECLARATION
 timer = Timer {
     Event {
         action = function()
@@ -173,6 +146,28 @@ timer = Timer {
     },
 }
 
+---------------------------------------------------------------
+-- CHANGE RATES AND RULES
+txO1 = 0.01 -- 0,0003333333
+funcO1 = function(t, stock, stock2) return txO1 * stock * stock2 end
+
+txO2 = 0.0042424242 -- 0,0001388889
+funcO2 = function(t, stock, stock2) return txO2 * stock * stock2 end
+
+txO3 = 0.0104848485 --0,0003588889
+funcO3 = function(t, stock, stock2) return txO3 * stock * stock2 end
+
+txM1 = 1 / 100
+funcFlowM1 = function(t, stock) return txM1 * stock end
+txM2 = 1 / 3
+funcFlowM2 = function(t, stock) return txM2 * stock end
+txM3 = 1 / 70
+funcFlowM3 = function(t, stock) return txM3 * stock end
+txM4 = 1 / 17.5
+funcFlowM4 = function(t, stock) return txM4 * stock end
+
+---------------------------------------------------------------
+-- Connectors and Flow OPERATORS
 
 --Flow (funcFlowM1, 1, 20, 1, csField, "eggs", nil, csField, "m1", nil)
 eachEggs = Connector {
@@ -187,8 +182,7 @@ eachDeadEggs = Connector {
 eggsDeath = Flow {
     rule = funcFlowM1,
     source = eachEggs,
-    target = eachDeadEggs,
-    timer = timer
+    target = eachDeadEggs
 }
 
 --Flow (funcO1, 1, 20, 1, csField, "eggs", nil, csField, "larvas", nil)
@@ -206,8 +200,7 @@ eachLarvas = Connector {
 eggsToLarvas = Flow {
     rule = funcO1,
     source = eachEggsAndTemperature,
-    target = eachLarvas,
-    timer = timer
+    target = eachLarvas
 }
 
 --Flow (funcFlowM2, 1, 20, 1, csField, "larvas", nil, csField, "m2", nil)
@@ -219,8 +212,7 @@ eachDeadLarvas = Connector {
 larvasDeath = Flow {
     rule = funcFlowM2,
     source = eachLarvas,
-    target = eachDeadLarvas,
-    timer = timer
+    target = eachDeadLarvas
 }
 
 --Flow (funcO2, 1, 20, 1, csField, "larvas", nil, csField, "pulps", nil)
@@ -238,8 +230,7 @@ eachPulps = Connector {
 larvasTopulps = Flow {
     rule = funcO2,
     source = eachLarvasAndTemperature,
-    target = eachPulps,
-    timer = timer
+    target = eachPulps
 }
 
 --Flow (funcFlowM3, 1, 20, 1, csField, "pulps", nil, csField, "m3", nil)
@@ -251,8 +242,7 @@ eachDeadPulps = Connector {
 pulpsDeath = Flow {
     rule = funcFlowM3,
     source = eachPulps,
-    target = eachDeadPulps,
-    timer = timer
+    target = eachDeadPulps
 }
 
 --Flow (funcO3, 1, 20, 1, csField, "pulps", nil, csField, "mosquitos", nil)
@@ -270,8 +260,7 @@ eachMosquitos = Connector {
 pulpsToMosquitos = Flow {
     rule = funcO3,
     source = eachPulpsAndTemperature,
-    target = eachMosquitos,
-    timer = timer
+    target = eachMosquitos
 }
 
 --Flow (funcFlowM4, 1, 20, 1, csField, "mosquitos", nil, csField, "m4", nil)
@@ -279,8 +268,7 @@ pulpsToMosquitos = Flow {
 pulpsDeath = Flow {
     rule = funcFlowM4,
     source = eachMosquitos,
-    target = nil,
-    timer = timer
+    target = nil
 }
 
 timer:run(40)

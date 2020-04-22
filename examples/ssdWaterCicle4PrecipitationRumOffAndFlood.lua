@@ -1,13 +1,24 @@
--- @example Implementation of a simple runoff model using geospatial data. There is an initial rain in the highest
---  cells. The Neighborhood of a Cell is composed by its Moore neighbors that have lower height.
--- Each cell then sends its water equally to all neighbors.
--- @image ssdWaterCicle4PrecipitationRumOffAndFlood.bmp
+-- @example Implementation of an integration of tree model rain, runoff and flood models using geospatial data
+-- (applied in the mountains of the Cabeça de Boi region of the Serra do Cipó National Park with Serra do Lobo,
+--  in Brazil.
+-- Integrated to it, the model has tree flows:
+-- 1 - The semantics of the rain flow operator will work by transferring water from the cell’s selection of the
+-- Trajectory clouds_tj of atmophere_cs for each cell of ground_cs in fractions calculated by
+-- precipitation_rule at each simulation instant. It becomes clear the water transfer between CellularSpace’s
+-- cs_atmosphere and cs_ground until simulation time 140.
+-- 2 - The phenomenon of runoff with a Flow Focal operator, results from the runoff of water from
+-- higher terrain for terrain of the same elevation or less elevated. The semantics of the flow operator
+-- will work by transferring water from each cell’s of the ground_cs in fractions calculated by dispersion_rule to
+-- each simulation instant divided in equal fractions among the lowest elevation neighbors.
+-- 3 - The flood phenomenon from the moment they reach the maximum capacity of accumulation of
+-- water in your cells thus creating an effect of filling and then overflowing to neighboring neighboring cells
+-- the cell with elevation less than or equal to itself plus the attribute waterColumnHeight.
+-- @image ssdWaterCicle4PrecipitationRumOffAndFlood.png
 
 import("ssd")
---dofile("../lua/Flow.lua") --Arquivo deve ser colocado no HOME
---dofile("../lua/Connector.lua") --Arquivo deve ser colocado no HOME
 
--- MODEL
+---------------------------------------------------------------
+-- # SPACE # Creation
 cell = Cell {
     water = 0,
     waterColumnHeight = 0,
@@ -179,24 +190,6 @@ map2 = Map {
     slices = 15,
     color = "Blues"
 }
---[[
-map3 = Map{
-    target = ground_cs,
-    select = "flood_area",
-    color = {"white", "red"},
-    value = {0,   1},
-    label = {"NoWater", "Water"}
-}
-]] --
---[[
-map5 = Map{
-    target = atmosphere,
-    select = "rainning_area",
-    color = {"white", "red"},
-    value = {0,   1},
-    label = {"NoWater", "Water"}
-}
-]]
 map4 = Map {
     target = atmosphere,
     select = "logAtmosphereWater",
@@ -226,17 +219,9 @@ chartsummary = Chart {
     color = { "blue", "darkBlue" },
     title = "Amount of water in the system (CellularSpace)"
 }
---[[
-chartsummary2 = Chart{
-	target = summary,
-	width = 3,
-	select = {"maxGroundWater","Water_ATMOSPHERE_MAX"},
-	labels   = {"maxGroundWater","Water_ATMOSPHERE_MAX"},
-	style = "lines",
-	color = {"blue", "darkBlue"},
-	title = "Upper limit of water in cell"
-}
-]] --
+
+---------------------------------------------------------------
+-- Timer DECLARATION
 timer = Timer {
     Event {
         action = function()
@@ -250,16 +235,9 @@ timer = Timer {
     Event { period = 1000, action = map1 },
     Event { period = 1000, action = mapwaterColumnHeight },
     Event { action = map2 },
-    --Event{period = 100, action = map3},
     Event { action = map4 },
-    --Event{period = 100, action = map5},
     Event { action = chartsummary },
-    --Event{period = 10, action = chartsummary2},
-    --Event{period = 10, action = chartsummary2},
     Event {
-        --start = 1,
-        --period = 1,
-        --priority = 0,
         action = function(event)
             clouds_tj:rebuild()
             clouds_tj:filter()
@@ -327,18 +305,6 @@ timer = Timer {
         end
     },
 }
-
---[[
-GENERATE_MAPS{
-	experimentName = "WATER_CICLE_STAGE4", --chartsummary2:save("SAVES/"..EXPERIMENT_NAME.."/
-	mapInitialTime = 1,
-	mapFinalTime = 1000,
-	mapPeriod = 10,
-	beggin_saveList = {map3, map5, map2, map4, map1, mapwaterColumnHeight},
-	during_saveList = {map3, map5, map2, map4},
-	end_saveList = {chartsummary, chartsummary2}
-}
-]] --
 ----------------------------------------------------------------------
 -- CHANGE RATES AND RULES
 precipitation_rate = 0.01
@@ -376,20 +342,17 @@ waterColumnAroundTheGround_focalCnt = Connector {
 precipitation_Flow = Flow {
     rule = precipitation_rule,
     source = clouds_zonalCnt,
-    target = ground_localCnt,
-    timer = timer
+    target = ground_localCnt
 }
 runOff_Flow = Flow {
     rule = dispersion_rule,
     source = ground_localCnt,
-    target = aroundTheGround_focalCnt,
-    timer = timer
+    target = aroundTheGround_focalCnt
 }
 flood_Flow = Flow {
     rule = floodDispersion_rule,
     source = floodArea_zonalCnt,
     target = waterColumnAroundTheGround_focalCnt,
-    timer = timer
 }
 --------------------------------------------------------------
 -- MODEL EXECUTION

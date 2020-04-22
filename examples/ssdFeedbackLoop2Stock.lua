@@ -7,10 +7,8 @@
 -- @image ssdFeedbackLoop2Stock.png
 
 import("ssd")
---dofile("../lua/Flow.lua") --Arquivo deve ser colocado no HOME
---dofile("../lua/Connector.lua") --Arquivo deve ser colocado no HOME
-
-
+---------------------------------------------------------------
+-- # SPACE # Creation
 fullCell = Cell {
     stock = 0,
     stock2 = 0
@@ -19,15 +17,15 @@ cs = CellularSpace {
     xdim = 3,
     instance = fullCell,
     init = function(self)
-                self:get(0,0).stock = 100
-                self:get(0,0).stock2 = 1
-                self:get(0,1).stock = 100
-                self:get(0,1).stock2 = 1
-                self:get(0,2).stock = 100
-                self:get(0,2).stock2 = 1
-                self:get(1,0).stock = 100
-                self:get(1,0).stock2 = 0
-            end
+        self:get(0, 0).stock = 100
+        self:get(0, 0).stock2 = 1
+        self:get(0, 1).stock = 100
+        self:get(0, 1).stock2 = 1
+        self:get(0, 2).stock = 100
+        self:get(0, 2).stock2 = 1
+        self:get(1, 0).stock = 100
+        self:get(1, 0).stock2 = 0
+    end
 }
 emptyCell = Cell {
     stock = 0
@@ -36,34 +34,34 @@ cs2 = CellularSpace {
     xdim = 3,
     instance = emptyCell,
     init = function(self)
-                self:get(0,0).stock = 1
-                self:get(0,1).stock = 0
-                self:get(0,2).stock = 1
-                self:get(1,0).stock = 1
-            end
+        self:get(0, 0).stock = 1
+        self:get(0, 1).stock = 0
+        self:get(0, 2).stock = 1
+        self:get(1, 0).stock = 1
+    end
 }
-cs2:createNeighborhood{
+cs2:createNeighborhood {
     name = "neight3x3",
     strategy = "mxn"
 }
-mapCs = Map{
-	target = cs,
-	select = "stock",
-	min = 0,
-	max = 100,
-	slices = 10,
-	color = "Blues"
+mapCs = Map {
+    target = cs,
+    select = "stock",
+    min = 0,
+    max = 100,
+    slices = 10,
+    color = "Blues"
 }
-mapCs2 = Map{
-	target = cs2,
-	select = "stock",
-	min = 0,
-	max = 100,
-	slices = 10,
-	color = "Blues"
+mapCs2 = Map {
+    target = cs2,
+    select = "stock",
+    min = 0,
+    max = 100,
+    slices = 10,
+    color = "Blues"
 }
-----------------------------------------------------------------------
--- TIMER INSTANTIATION
+---------------------------------------------------------------
+-- Timer DECLARATION
 timer = Timer {
     Event {
         action = function()
@@ -74,14 +72,14 @@ timer = Timer {
             return false
         end
     },
-    Event{action = mapCs},
-    Event{action = mapCs2}
+    Event { action = mapCs },
+    Event { action = mapCs2 }
 }
 
 ----------------------------------------------------------------------
 -- CHANGE RATES AND RULES
 verticalDispersion_rate = 0.1
-verticalDispersion_rule = function(t, stock, stock2, stock3) return verticalDispersion_rate * stock * stock2 * stock3  end
+verticalDispersion_rule = function(t, stock, stock2, stock3) return verticalDispersion_rate * stock * stock2 * stock3 end
 ----------------------------------------------------------------------
 -- ConnectorS
 cs_localCnt = Connector {
@@ -91,8 +89,7 @@ cs_localCnt = Connector {
 }
 cs2_focalCnt = Connector {
     collection = cs2,
-    attribute = "stock"--,
-    --neight = "neight3x3"
+    attribute = "stock"
 }
 ---------------------------------------------------------------
 -- Flow OPERATORS
@@ -100,8 +97,7 @@ focal_Flow = Flow {
     rule = verticalDispersion_rule,
     source = cs_localCnt,
     target = cs2_focalCnt,
-    feedbackLoop = true,
-    timer = timer
+    feedbackLoop = true
 }
 --------------------------------------------------------------
 -- MODEL EXECUTION
@@ -126,7 +122,3 @@ print("cs2")
 forEachCell(cs2, function(cell)
     print(cell.stock)
 end)
-
-print("verticalDispersion_rule", verticalDispersion_rule)
-
---os.exit(0)

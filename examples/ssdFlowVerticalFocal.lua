@@ -1,9 +1,13 @@
-
 -- @example Implementation of a simple vertical local Flow.
+-- Each cell in a cellular space (9x9) transfers part of its attribute stock at
+-- a rate defined by f (t, y) (dispersion_rule) to the attributes of cells in the neighborhood ("neight3x3")
+-- of the spatially corresponding cell of another cellular space.
 -- @image ssdFlowVerticalFocal.png
 
 import("ssd")
 
+---------------------------------------------------------------
+-- # SPACE # Creation
 emptyCell = Cell {
     stock = 0
 }
@@ -14,35 +18,35 @@ cs = CellularSpace {
     xdim = 9,
     instance = fullCell,
     init = function(self)
-                self:get(4,4).stock = 100
-            end
+        self:get(4, 4).stock = 100
+    end
 }
 cs2 = CellularSpace {
     xdim = 9,
     instance = emptyCell
 }
-cs2:createNeighborhood{
+cs2:createNeighborhood {
     name = "neight3x3",
     strategy = "mxn"
 }
-mapCs = Map{
-	target = cs,
-	select = "stock",
-	min = 0,
-	max = 100,
-	slices = 10,
-	color = "Blues"
+mapCs = Map {
+    target = cs,
+    select = "stock",
+    min = 0,
+    max = 100,
+    slices = 10,
+    color = "Blues"
 }
-mapCs2 = Map{
-	target = cs2,
-	select = "stock",
-	min = 0,
-	max = 100,
-	slices = 10,
-	color = "Blues"
+mapCs2 = Map {
+    target = cs2,
+    select = "stock",
+    min = 0,
+    max = 100,
+    slices = 10,
+    color = "Blues"
 }
-----------------------------------------------------------------------
--- TIMER INSTANTIATION
+---------------------------------------------------------------
+-- Timer DECLARATION
 timer = Timer {
     Event {
         action = function()
@@ -53,8 +57,8 @@ timer = Timer {
             return false
         end
     },
-    Event{action = mapCs},
-    Event{action = mapCs2}
+    Event { action = mapCs },
+    Event { action = mapCs2 }
 }
 
 ----------------------------------------------------------------------
@@ -77,8 +81,7 @@ cs2_focalCnt = Connector {
 focal_Flow = Flow {
     rule = verticalDispersion_rule,
     source = cs_localCnt,
-    target = cs2_focalCnt,
-    timer = timer
+    target = cs2_focalCnt
 }
 --------------------------------------------------------------
 -- MODEL EXECUTION

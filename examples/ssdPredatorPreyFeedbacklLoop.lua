@@ -4,19 +4,14 @@
 -- @image ssdPredatorPrey40002Graphs.png
 
 import("ssd")
---dofile("../lua/Flow.lua")
---dofile("../lua/Connector.lua")
 
 ---------------------------------------------------------------
 -- EXPERIMENT DEFINITIONS
-timeStep = 1 / 64 --1/16--1/512--1/256--0.03125 -- See the effects of 0.25, 0.125, 0.0625, and 0.03125
-finalTime = 1000
-DIM_CS = 1
-EXPERIMENT_NAME = "PREY_PREDATOR_Flow"
-NEIGHT = nil
+--timeStep = 1 / 64 --1/16--1/512--1/256--0.03125 -- See the effects of 0.25, 0.125, 0.0625, and 0.03125
 PREYS = 100
 PREDATORS = 10
-
+---------------------------------------------------------------
+-- # SPACE # Creation
 cell = Cell {
     preys = PREYS,
     predators = PREDATORS,
@@ -49,18 +44,8 @@ chartPhaseSpace = Chart {
     color = { "red" },
     title = "Phase space"
 }
---[[
- chart2 = Chart{
-   target = csField,
-   width = 3,
-   select = {"preysDeath", "predatorsDeath"},
-   labels = {"preysDeath", "predatorsDeath"},
-   style = "lines",
-   color = {"brown", "black"},
-   title = "PREY_PREDATOR-DEATH"
- }
- ]] --
-
+---------------------------------------------------------------
+-- Timer DECLARATION
 timer = Timer {
     Event {
         action = function()
@@ -74,7 +59,7 @@ timer = Timer {
     --Event{action = chart2},
 
     --SAVE MODEL EVENT
-    Event {
+--[[    Event {
         start = finalTime,
         --period = 1,
         priority = 8,
@@ -83,12 +68,14 @@ timer = Timer {
             chartPhaseSpace:save("../images/ssdPredatorPreyChartPhaseSpace.bmp")
             if (event:getTime() > finalTime) then return false end
         end
-    }
+    }]]
 }
 
 ---------------------------------------------------------------
 -- INTEGRATION FUNCTION AND CHANGE RATES
 ---------------------------------------------------------------
+---------------------------------------------------------------
+-- Connectors and Flow OPERATORS
 
 birthPreyRate = 0.2
 funcBirthPrey = function(t, stock) return birthPreyRate * stock end
@@ -102,8 +89,7 @@ BirthPrey = Flow {
     delta = 0.0625,
     rule = funcBirthPrey,
     source = nil,
-    target = csField_local_prey,
-    timer = timer
+    target = csField_local_prey
 }
 
 --Flow(funcPredation, 1,  finalTime, timeStep,  csField, "preys", nil,  csField, "preysDeath", nil, model)
@@ -126,8 +112,7 @@ Predation = Flow {
     delta = 0.0625,
     rule = funcPredation,
     source = csField_local_preysPredators,
-    target = csField_local_preysDeath,
-    timer = timer
+    target = csField_local_preysDeath
 }
 --Flow(funcBirthPredatorPerPrey, 1,  finalTime, timeStep, nil, nil, nil,  csField, "predators", nil, model)
 
@@ -144,8 +129,7 @@ BirthPredatorPerPrey = Flow {
     delta = 0.0625,
     rule = funcBirthPredatorPerPrey,
     source = nil,
-    target = csField_local_predatorsPreys,
-    timer = timer
+    target = csField_local_predatorsPreys
 }
 --Flow(funcDeathPredator, 1,  finalTime, timeStep,  csField, "predators", nil,  csField, "predatorsDeath", nil, model)
 
@@ -161,8 +145,7 @@ DeathPredator = Flow {
     delta = 0.0625,
     rule = funcDeathPredator,
     source = csField_local_predators,
-    target = nil,
-    timer = timer
+    target = nil
 }
 
 timer:run(4000)
@@ -222,9 +205,6 @@ for t = 0, 10000, timeStep do
 end
 
 print("Model outcome: ", ag.preys, ag.predators )
-
-
-
 
 ]]
 

@@ -1,15 +1,16 @@
-
--- @example Implementation of a simple firespread model using stocatisca data.
--- @image ssdFireSpread.bmp
+-- @example Implementation of an simple model heat spread model using stochastic data.
+-- The Heat propagation that propagates from each cell to his neights (3x3 moore) that has state GRASS, FOREST and
+--  DENSE_FOREST and a stochastic chance of burning.
+-- @image ssdFireSpreadHeat.bmp
 
 import("ssd")
 ---------------------------------------------------------------
-randomRate = Random{seed = 10}
-randomBoolean = Random{true, false}
+randomRate = Random { seed = 10 }
+randomBoolean = Random { true, false }
 ---------------------------------------------------------------
--- MODEL
-cell = Cell{
-    biomass = Random{0, 1, 2},
+-- # SPACE # Creation
+cell = Cell {
+    biomass = Random { 0, 1, 2 },
     biomass_state = "FOREST",
     heat = 0,
     heat_state = "NO_HEAT",
@@ -36,23 +37,21 @@ cell = Cell{
         --ETAPA 2 FIM
     end
 }
-cs = CellularSpace{
+cs = CellularSpace {
     xdim = 50,
     instance = cell,
 }
 --ETAPA 2
-cs:createNeighborhood{
+cs:createNeighborhood {
     name = "neightHeat",
     --strategy = "vonneumann"
-    strategy = "mxn",
-    --m = 3,
-    --selrule = false,
+    strategy = "mxn"
 }
 cellSample = cs:sample()
 cellSample.state = "burning"
 cellSample.heat = 1
 
-summary = Cell{
+summary = Cell {
     step = 0,
     Biomass_TOTAL_STEP0 = 0,
     Biomass_GROUND_TOTAL = 0,
@@ -61,116 +60,78 @@ summary = Cell{
     start = false
 }
 
-mapCsHeat = Map{
+mapCsHeat = Map {
     title = "Heat Propagation",
     target = cs,
     select = "heat_state",
-    value = {"NO_HEAT", "HEAT"},
-    color = {"green", "red"}
+    value = { "NO_HEAT", "HEAT" },
+    color = { "green", "red" }
 }
-chartHeat = Chart{
+chartHeat = Chart {
     target = cs,
     select = "heat_state",
-    value = {"NO_HEAT", "HEAT"},
-    color = {"green", "red"}
+    value = { "NO_HEAT", "HEAT" },
+    color = { "green", "red" }
 }
 --ETAPA 2 FIM
-timer = Timer{
-    Event{start = 0,
-        --period = 1,
+---------------------------------------------------------------
+-- Timer DECLARATION
+timer = Timer {
+    Event {
+        start = 0,
         priority = 9,
-        action = cs},
-    --Event{action = mapCsBiomass_stade},
-    --Event{action = chartsummary},
-    Event{action = mapCsHeat},
-    Event{action = chartHeat},
+        action = cs
+    },
+    Event { action = mapCsHeat },
+    Event { action = chartHeat },
     --SUMMARY DATA MODEL EVENT
-    Event{start = 0,
-        --period = 1,
+    Event {
+        start = 0,
         priority = 9,
         action = function(event)
-            --print("\n")
             print('=========================================================================================================== ')
-            print("BIOMASS VALITDATION STEP: ".. event:getTime())
+            print("BIOMASS VALITDATION STEP: " .. event:getTime())
             summary.Biomass_GROUND_TOTAL = 0
             summary.step = event:getTime()
             --BIOMASS SUMMARY
             forEachCell(cs, function(cell)
-                --if (cell.biomass > summary.Biomass_GROUND_MAX) then summary.Biomass_GROUND_MAX = cell.biomass end
-                --if (cell.biomass < summary.Biomass_GROUND_MIN) then summary.Biomass_GROUND_MIN = cell.biomass end
                 summary.Biomass_GROUND_TOTAL = summary.Biomass_GROUND_TOTAL + cell.biomass
             end)
             if (summary.start == false) then
                 summary.Biomass_TOTAL_STEP0 = summary.Biomass_GROUND_TOTAL
                 summary.start = true
             end
-            print ('TIME:', summary.step ,'summary.Biomass_TOTAL_STEP0', summary.Biomass_TOTAL_STEP0)
-            print ( 'summary.Biomass_GROUND_TOTAL:', summary.Biomass_GROUND_TOTAL)
-            --print ( 'summary.Biomass_GROUND_MAX:', summary.Biomass_GROUND_MAX)
-            --print ( 'summary.Biomass_GROUND_MIN:', summary.Biomass_GROUND_MIN)
-            print ('----------------------------------------------------------------------------------------------------------')
+            print('TIME:', summary.step, 'summary.Biomass_TOTAL_STEP0', summary.Biomass_TOTAL_STEP0)
+            print('summary.Biomass_GROUND_TOTAL:', summary.Biomass_GROUND_TOTAL)
+            print('----------------------------------------------------------------------------------------------------------')
             return true
-        end},
-    --SAVE MAP AT BEGGIN OF THE SIMULATION
-    --[[
-    Event{start = 1,
-        period = 1,
-        priority = 8,
-        action = function(event)
-            mapCsBiomass_stade:save("SAVES/"..EXPERIMENT_NAME.."/FS1M1_" .. event:getTime() .. ".bmp")
-            mapCsHeat:save("SAVES/"..EXPERIMENT_NAME.."/FS1M2_" .. event:getTime() .. ".bmp")
-            if (event:getTime() >= 1) then return false end
-        end},
+        end
+    },
     --SAVE MAP DURING THE SIMULATION
-    Event{start = SIMULATION_PERIOD,
-        period = SIMULATION_PERIOD,
-        priority = 8,
-        action = function(event)
-            mapCsBiomass_stade:save("SAVES/"..EXPERIMENT_NAME.."/FS1M1_" .. event:getTime() .. ".bmp")
-            mapCsHeat:save("SAVES/"..EXPERIMENT_NAME.."/FS1M2_" .. event:getTime() .. ".bmp")
-            if (event:getTime() >= SIMULATION_TIME) then return false end
-        end },
-    --SAVE MAP AT END OF THE SIMULATION
-    Event{start = SIMULATION_TIME,
-        period = 1,
-        priority = 8,
-        action = function(event)
-            chartsummary:save("SAVES/"..EXPERIMENT_NAME.."/GFS1C1_" .. event:getTime() .. ".bmp")
-            chartHeat:save("SAVES/"..EXPERIMENT_NAME.."/GFS1C2_" .. event:getTime() .. ".bmp")
-            if (event:getTime() >= SIMULATION_TIME) then return false end
-        end}
-        ]]
+    --    Event{action = function(event)
+    --            mapCsHeat:save("SAVES/FS1M2_" .. event:getTime() .. ".bmp")
+    --            if (event:getTime() >= 100) then return false end
+    --        end },
 }
---[[
-GENERATE_MAPS{
-    experimentName = "FlowFocalFireSpread", --chartsummary2:save("SAVES/"..EXPERIMENT_NAME.."/
-    mapInitialTime = 1,
-    mapFinalTime = 100,
-    mapPeriod = 5,
-    beggin_saveList = {mapCsHeat},
-    during_saveList = {mapCsHeat},
-    end_saveList = {chartHeat}
-}
-]]--
 -------------------------------------------------------------------
 -- CHANGE RATES AND RULES
-heatdispersion_rate     = 0.99
-funcHeatDisper = function (t,stock) return heatdispersion_rate * stock end
+heatdispersion_rate = 0.99
+funcHeatDisper = function(t, stock) return heatdispersion_rate * stock end
 ---------------------------------------------------------------
-eachHeatGroundCell = Connector{
+-- Connectors and Flow OPERATORS
+eachHeatGroundCell = Connector {
     collection = cs,
     attribute = "heat"
 }
-neightOfEachHeatGroundCell = Connector{
+neightOfEachHeatGroundCell = Connector {
     collection = cs,
     attribute = "heat",
     neight = "neightHeat"
 }
-Flow{
+Flow {
     rule = funcHeatDisper,
     source = eachHeatGroundCell,
-    target = neightOfEachHeatGroundCell,
-    timer = timer
+    target = neightOfEachHeatGroundCell
 }
 --ETAPA 2 FIM
 timer:run(100)

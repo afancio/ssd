@@ -1,12 +1,12 @@
 -- @example Implementation of a simple precipitation from out off sistem using geospatial data.
--- @image ssdWaterCicle1Precipitation.bmp
+-- Each cell in a cellular space suffer an energy variation in its attribute
+-- stock (water) at a rate defined by f (t, y) (linear_precipitation_rule),
+-- @image ssdWaterCicle1Precipitation.png
 
 import("ssd")
---dofile("../lua/Flow.lua")
---dofile("../lua/GENERATE_MAPS.lua")
 
-----------------------------------------------------------------
--- MODEL
+---------------------------------------------------------------
+-- # SPACE # Creation
 cell = Cell {
     water = 0,
     waterColumnHeight = 0,
@@ -32,20 +32,13 @@ ground_cs = CellularSpace {
             end)
             --Correção da declividade
             if cell.waterColumnHeight > 100 then
-                --print('cell.height', cell.height)
-                --print('cell.waterColumnHeight', cell.waterColumnHeight)
                 local sumNeighborHeight = 0
                 local sizeNeighborhoodDestiny = #cell:getNeighborhood()
-                --print('sizeNeighborhoodDestiny', sizeNeighborhoodDestiny)
                 forEachNeighbor(cell, function(neighbor)
-                    --print('neighbor.height', neighbor.height)
                     sumNeighborHeight = sumNeighborHeight + neighbor.height
                 end)
-                --print('old', cell.height)
-                --print('sumNeighborHeight', sumNeighborHeight)
                 cell.height = sumNeighborHeight / sizeNeighborhoodDestiny
                 cell.waterColumnHeight = 0
-                --print('new', cell.height)
             end
         end)
     end,
@@ -69,17 +62,6 @@ ground_cs:createNeighborhood()
 ground_cs:preeProcessamento2()
 ground_cs:preeProcessamentoPosDeclividade()
 
---[[
-map1 = Map{
-	target = ground_cs,
-	select = "height",
-	min = 0,
-	max = 260,
-	slices = 11,
-	color = "Spectral",
-	invert = true
-}
-]] --
 map2 = Map {
     target = ground_cs,
     select = "logwater",
@@ -105,17 +87,8 @@ chartsummary = Chart {
     color = { "blue" },
     title = "Amount of water in the system (CellularSpace)"
 }
---[[
-chartsummary2 = Chart{
-    target = summary,
-    width = 3,
-    select = {"maxGroundWater"},
-    labels   = {"maxGroundWater"},
-    style = "lines",
-    color = {"darkBlue"},
-    title = "Upper limit of water in cell"
-}
-]] --
+---------------------------------------------------------------
+-- Timer DECLARATION
 timer = Timer {
     Event {
         action = function()
@@ -125,18 +98,8 @@ timer = Timer {
             return false
         end
     },
-    -- COMMENT TO Flow
-    --[[
-        Event{action = function()
-            ground_cs:synchronize()
-            ground_cs:init()
-            ground_cs:runoff()
-        end},
-    ]] --
-    --Event{action = map1},
     Event { action = map2 },
     Event { action = chartsummary },
-    --Event{period = 10, action = chartsummary2},
     --SUMMARY DATA MODEL EVENT
     Event {
         start = 0,
@@ -169,17 +132,6 @@ timer = Timer {
         end
     }
 }
---[[
-GENERATE_MAPS{
-    experimentName = "WATER_CICLE_STAGE1", --chartsummary2:save("SAVES/"..EXPERIMENT_NAME.."/
-    mapInitialTime = 1,
-    mapFinalTime = 5000,
-    mapPeriod = 10,
-    beggin_saveList = {map2, map1},
-    during_saveList = {map2},
-    end_saveList = {chartsummary, chartsummary2}
-}
-]] --
 -------------------------------------------------------------------
 -- CHANGE RATES AND RULES
 linear_precipitation_rate = 400
@@ -198,10 +150,8 @@ ground_localCnt = Connector {
 precipitation_Flow = Flow {
     rule = linear_precipitation_rule,
     source = fromEnvironment_nilCnt,
-    target = ground_localCnt,
-    timer = timer
+    target = ground_localCnt
 }
 --------------------------------------------------------------
 -- MODEL EXECUTION
 timer:run(100)
---os.exit(0)

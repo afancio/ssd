@@ -21,14 +21,11 @@
 -- of this software and its documentation.
 --
 -------------------------------------------------------------------------------------------
---dofile("../lua/Connector.lua") --Arquivo deve ser colocado no HOME
+-- dofile("../lua/Connector.lua") --Arquivo deve ser colocado no HOME
 
 DISABLE_CELL_STOCK_LIMIT = true
 _DELTA_T = nil
 _COLLECTIONS_SYCHRONIZED = nil
---_DEFAULT_FINAL_TIMER = timer
-_DEFAULT_FINAL_TIME = 5000
-_DEFAULT_FEEDBACK_LOOP = false
 
 -- Flow use guide
 -- Add in terraMe: dofile("Flow_Public_Version_5.lua")
@@ -50,13 +47,13 @@ _DEFAULT_FEEDBACK_LOOP = false
 local function source_FlowintegrationEuler(df, initCond, a, b, delta, initCondSecundary, initCond3, initCond4)
     local numInitCondituions = 1
     if (initCondSecundary ~= nil) then
-    numInitCondituions = numInitCondituions + 1
+        numInitCondituions = numInitCondituions + 1
     end
     if (initCond3 ~= nil) then
-    numInitCondituions = numInitCondituions + 1
+        numInitCondituions = numInitCondituions + 1
     end
     if (initCond4 ~= nil) then
-    numInitCondituions = numInitCondituions + 1
+        numInitCondituions = numInitCondituions + 1
     end
 
     --print ("numInitCondituions = ", numInitCondituions)
@@ -192,38 +189,116 @@ local function source_FlowintegrationEuler(df, initCond, a, b, delta, initCondSe
     end
 end
 
---[[
-local function source_FlowintegrationEuler2(df, initCond, a, b, delta, iterator1_stock2)
-    if type(df) == "function" then
-        local Flow = 0
-        local y = initCond
-        --local x = a
-        local bb = b - delta
-        for x = a, bb, delta do
-            Flow = Flow + delta * df(x, y) --* iterator1_stock2
-            y = y - delta * df(x, y) --* iterator1_stock2
-        end
-        return Flow
-    else
-        --local i = 0
-        local y = initCond
-        local x = a
-        local bb = b - delta
-        local values = {} -- each equation must ne computed from the same "past" value ==> o(n2), onde n é o numero de equações
-        for x = a, bb, delta do
-            for i = 1, #df do
-                values[i] = df[i](x, y)
-            end
-            for i = 1, #df do
-                Flow = Flow + delta * values[i] --* iterator1_stock2
-                y[i] = y[i] - delta * values[i] --* iterator1_stock2
-            end
-        end
+--[[ --Fazer
+--- Implements the Heun (Euler Second Order) Method to integrate ordinary differential equations.
+-- It is a method of type Predictor-Corrector.
+-- @arg df The differential equation.
+-- @arg initCond The initial condition that must be satisfied.
+-- @arg a The value of 'a' in the interval [a,b[.
+-- @arg b The value of 'b' of in the interval [a,b[.
+-- @arg delta The step of the independent variable.
+-- @usage f = function(x) return x^3 end
+-- v = integrationHeun(f, 0, 0, 3, 0.1)
+function integrationHeun(df, initCond, a, b, delta)
+	if type(df) == "function" then
+		local y = initCond
+		local y1
+		local val
+		local bb = b - delta
+		for x = a, bb, delta do
+			val = df(x, y)
+			y1 = y + delta * val
+			y = y + 0.5 * delta * (val + df(x + delta, y1))
+		end
 
-        return Flow
-    end
+		return y
+	else
+		local y = initCond
+		local bb = b - delta
+		local sizeDF = #df
+		for x = a, bb, delta do
+			local val = {}
+			local y1 = {}
+			for i = 1, sizeDF do
+				val[i] = df[i](x, y)
+				y1[i] = y[i] + delta * val[i]
+			end
+
+			local values = {}
+			for i = 1, sizeDF do
+				values[i] = df[i](x + delta, y1)
+			end
+
+			for i = 1, sizeDF do
+				y[i] = y[i] + 0.5 * delta * (val[i] + values[i])
+			end
+		end
+
+		return y
+	end
 end
-]] --
+
+--- Implements the Runge-Kutta Method (Fourth Order) to integrate ordinary differential equations.
+-- @arg df The differential equation.
+-- @arg initCond The initial condition that must be satisfied.
+-- @arg a The value of 'a' in the interval [a,b[.
+-- @arg b The value of 'b' of in the interval [a,b[.
+-- @arg delta The step of the independent variable.
+-- @usage f = function(x) return x^3 end
+-- v = integrationRungeKutta(f, 0, 0, 3, 0.1)
+function integrationRungeKutta(df, initCond, a, b, delta)
+	if type(df) == "function" then
+		local y = initCond
+		local y1
+		local y2
+		local y3
+		local y4
+		local bb = b - delta
+		local midDelta = 0.5 * delta
+		for x = a, bb, delta do
+			y1 = df(x, y)
+			y2 = df(x + midDelta, y + midDelta * y1)
+			y3 = df(x + midDelta, y + midDelta * y2)
+			y4 = df(x + delta, y + delta* y3)
+			y = y + delta * (y1 + 2 * y2 + 2 * y3 + y4) / 6
+		end
+
+		return y
+	else
+		local y = initCond
+		local y1
+		local y2
+		local y3
+		local y4
+		local bb = b - delta
+		local midDelta = 0.5 * delta
+		local sizeDF = #df
+		for x = a, bb, delta do
+			local yTemp = {}
+			local values = {}
+			for i = 1, sizeDF do
+				yTemp[i] = y[i]
+			end
+
+			for i = 1, sizeDF do
+				y1 = df[i](x, y)
+				yTemp[i] = y[i] + midDelta * y1
+				y2 = df[i](x + midDelta, yTemp)
+				yTemp[i] = y[i] + midDelta * y2
+				y3 = df[i](x + midDelta, yTemp)
+				yTemp[i] = y[i] + delta * y3
+				y4 = df[i](x + delta, yTemp)
+				values[i] = y[i] + delta * (y1 + 2 * y2 + 2 * y3 + y4) / 6
+			end
+
+			for i = 1, sizeDF do
+				y[i] = values[i]
+			end
+		end
+
+		return y
+	end
+end]]
 
 -- Flow Execution or Behavioral rules (BehavioralRules) are executed, that is,
 -- TerraME iterates over all cells of the involved collections, applying the differential
@@ -625,6 +700,7 @@ local function synchronizedOptimization(data)
     end
 end
 
+_flowTimer = Timer()
 local function verifyFlowData(data)
     if data.rule == nil then
         customError("Atrribute rule is necessary. Add f = f(x) to Flow call.")
@@ -639,16 +715,37 @@ local function verifyFlowData(data)
     elseif data.target.type ~= "Connector" then
         customError("Invalid type. Flow only work with Connector, got " .. type(data.target.type) .. ".")
     end
-    if data.timer == nil then
-        customError("Atrribute timer is necessary. Add a timer to Flow call.")
-        --data.timer = _DEFAULT_FINAL_TIMER
+    --- LINHA 641 - lua/flow.lua PEDRO - Não consigo realizar o acesso ao timer global de um modelo do TerraME
+    -- nas verssões anteriores eu fazia a atribuição do timer como abaixo para quando o usuário não o informa
+    -- como parâmetro. Mas ao rodar o -test para gerar o pacote ele não permite. Gerando o erro:
+    -- Testing ssdBiomassGrowth
+    -- Error in example: Error: attempt to index a nil value (field 'timer')
+    -- Stack traceback:
+    -- File '..._SD_FLOW/packageToTerraMERC9/ssdGlobalTimer/lua/Flow.lua', line 747, in function 'Flow', in operator [] (index)
+    -- File '...oTerraMERC9/ssdGlobalTimer/examples/ssdBiomassGrowth.lua', line 148, in function 'result'
+    -- Boa dia Tiago, passei a manhã analisando a solução do Pedro, ela seviria para o caso de modelos que não temos o timer
+    -- , mas isso é nosso caso, todos os exemplos eu ja criei um timer e quero adicionar os eventos do flow nesse timer.
+    -- Com a solução do Pedro eu fico com dois Timers e os flows saõ adicionados nesse novo timer.
+    -- O Cenário é outro:
+    -- O usuário cria um timer, chama o flow e em seguida faz a chamada do timer:run()
+    -- Com a solução do Pedro, eu instancio um novo timer e os eventos do flow são adicionados nele.
+    -- E não no timer criado pelo usuário e que rodará o run()
+    if data.timer == nil then -- Não é quando ele não foi criado, mas sim quando ele não foi informado.
+        --data.timer =  Timer() --Solução Pedro
+        data.timer = ___userDefinedTimer
+        --data.timer =  _env.timer --Tentei, mas não deu certo.
+        --customError("Atrribute timer is necessary. Add a timer to Flow call.") --PEDRO - versao ssd estão atualmente assim
     end
-    if data.finalTime == nil then
-        data.finalTime = _DEFAULT_FINAL_TIME
+    if (___userDefinedTimer == nil) then
+        customError("A Timer mshould declare a Timer before declaring any FLOW.")
+        return false
     end
+    --    if data.finalTime == nil then
+    --        data.finalTime = 5000
+    --    end
     --print ("data.feedbackLoop", data.feedbackLoop)
     if data.feedbackLoop == nil then
-        data.finalTime = _DEFAULT_FEEDBACK_LOOP
+        data.feedbackLoop = false
     elseif data.feedbackLoop == true then
         --print ("data.feedbackLoop", data.feedbackLoop)
         --print ("data.source", data.source)
@@ -669,17 +766,28 @@ local function verifyFlowData(data)
         data.a = 1
     end
     if data.b == nil then
-        data.b = _DEFAULT_FINAL_TIME
+        data.b = 5000
     end
     if data.delta == nil then
         data.delta = 1
     end
+
+    --"euler","rungekutta" and "heun"
+    if data.method == nil then --TODO implementar os demais métodos
+        method = "euler"
+    end
+    -- fazer chamada assim
+    --local result = switch(attrs, "method"):caseof {
+    --		euler = function() return integrationEuler(attrs.equation, attrs.initial, attrs.a, attrs.b, attrs.step) end,
+    --		rungekutta = function() return integrationRungeKutta(attrs.equation, attrs.initial, attrs.a, attrs.b, attrs.step) end,
+    --		heun = function() return integrationHeun(attrs.equation, attrs.initial, attrs.a, attrs.b, attrs.step) end
+    --	}
 end
 
 --- A Flow operation represents continuous transference of energy between two spatial Connectors.
 -- The differential equation supplied as the first operator parameter determines the amount of energy.
 -- transferred between regions. (Pre Stage) At the beginning of the simulation, all collections created by the
---  modeler are synchronized through the TerraME's synchronize() function.
+-- modeler are synchronized through the TerraME's synchronize() function.
 -- @arg data.rule : Differential equation that describes, as a function up to four parameters, the rate of change
 --  (point derivative) of energy f (t, stock) at time t, where t is the simulation current instant time, and stock is
 --  the past value of the rate of change f (). To one stock uses: f (t, stock), to two stock uses: f (t, stock, stock2),
@@ -688,7 +796,7 @@ end
 --  and target.secundaryAttribute.
 -- @arg data.source : Connector that defines the collection of cells that will be used to calculate the Flow the source.
 -- @arg data.target : Connector that defines the collection of cells that will be used to target the calculated Flow
---  from the Flow the source.
+-- from the Flow the source.
 -- @arg data.feedbackLoop : boolean control. If true, the souce attributes will be included to flow rule.
 -- @usage -- DONTRUN
 -- import("ssd")
@@ -779,7 +887,7 @@ function Flow(data)
                 data.source.collection, data.source.attribute, data.source.secundaryAttribute, data.source.neight,
                 data.target.collection, data.target.attribute, data.target.secundaryAttribute, data.target.neight,
                 data.feedbackLoop)
-        --print ("event:getTime()", event:getTime(), "data.b", data.b)
+            --print ("event:getTime()", event:getTime(), "data.b", data.b)
             if (event:getTime() >= data.b) then return false end
         end
     })
@@ -807,4 +915,93 @@ function Flow(data)
             if (event:getTime() >= data.b) then return false end
         end
     })
+end
+--
+----TESTE DE FUNCIONAMENTO 1 -- OK--- A Flow operation represents continuous transference of energy between two spatial Connectors.
+----- Flow rum creates a Environment and add local timer and global _flowTimer to it and run until finalTime.
+---- @arg data.timer local timer.
+---- @arg data.finalTime total time of simulation.
+--function FlowRun(data)
+--    env = Environment {
+--        data.timer,
+--        _flowTimerfinalTime
+--    }
+--    env:run(data.finalTime)
+--end
+
+--END
+
+--TEST 2 -- ADD NO Timer.Lua
+--[[runFlow = function(self, finalTime)
+        mandatoryArgument(1, "number", finalTime)
+
+        print("#timer:self", #self)
+        if finalTime < self.time then
+            local msg = "Simulating until a time (" .. finalTime ..
+                    ") before the current simulation time (" .. self:getTime() .. ")."
+            customWarning(msg)
+        end
+
+        print("#_flowTimer", #_flowTimer)
+        if #_flowTimer < 1 then
+            local msg = "No events on _flowTimer."
+            customWarning(msg)
+            local flowEnvironment = Environment {
+                self
+            }
+            flowEnvironment:run(finalTime)
+        else
+            local flowEnvironment = Environment {
+                self,
+                _flowTimer
+            }
+            flowEnvironment:run(finalTime)
+        end
+    end,]]
+--
+
+
+--DONT running
+--[[
+Timer_ = {
+    super = {Timer},
+    runFlow = function(self, finalTime)
+        mandatoryArgument(1, "number", finalTime)
+
+        print("#timer:self", #self)
+        if finalTime < self.time then
+            local msg = "Simulating until a time (" .. finalTime ..
+                    ") before the current simulation time (" .. self:getTime() .. ")."
+            customWarning(msg)
+        end
+
+        print("#_flowTimer", #_flowTimer)
+        if #_flowTimer < 1 then
+            local msg = "No events on _flowTimer."
+            customWarning(msg)
+            local flowEnvironment = Environment {
+                self
+            }
+            flowEnvironment:run(finalTime)
+        else
+            local flowEnvironment = Environment {
+                self,
+                _flowTimer
+            }
+            flowEnvironment:run(finalTime)
+        end
+    end,
+}]]
+
+
+-- To overload Timer factory keeping compatibility with previows models, it is necessary to save the original Timer factory before
+___oldTimerFactory = Timer
+--print(Timer, type(Timer))  -- uncomment this line to understand what I am doing
+Timer = function(self, eventsTable) -- overloading
+
+    -- save in a global variable the user defined Timer
+    -- NOTE: it will always save the last user define Timer
+    ___userDefinedTimer = ___oldTimerFactory(self, eventsTable)
+
+    return ___userDefinedTimer
 end

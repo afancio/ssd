@@ -1,9 +1,12 @@
-
 -- @example Implementation of a simple vertical local Flow.
+-- Each cell in a cellular space transfers part of its attribute stock
+-- at a rate defined by f (t, y) to the spatially corresponding cell
+-- attribute of another cellular space,
 -- @image ssdFlowVerticalLocal.png
 
 import("ssd")
-
+---------------------------------------------------------------
+-- # SPACE # Creation
 emptyCell = Cell {
     stock = 0
 }
@@ -19,24 +22,24 @@ cs2 = CellularSpace {
     instance = emptyCell
 }
 
-mapCs = Map{
-	target = cs,
-	select = "stock",
-	min = 0,
-	max = 100,
-	slices = 10,
-	color = "Blues"
+mapCs = Map {
+    target = cs,
+    select = "stock",
+    min = 0,
+    max = 100,
+    slices = 10,
+    color = "Blues"
 }
-mapCs2 = Map{
-	target = cs2,
-	select = "stock",
-	min = 0,
-	max = 100,
-	slices = 10,
-	color = "Blues"
+mapCs2 = Map {
+    target = cs2,
+    select = "stock",
+    min = 0,
+    max = 100,
+    slices = 10,
+    color = "Blues"
 }
-----------------------------------------------------------------------
--- TIMER INSTANTIATION
+---------------------------------------------------------------
+-- Timer DECLARATION
 timer = Timer {
     Event {
         action = function()
@@ -47,8 +50,8 @@ timer = Timer {
             return false
         end
     },
-    Event{action = mapCs},
-    Event{action = mapCs2}
+    Event { action = mapCs },
+    Event { action = mapCs2 }
 }
 
 ----------------------------------------------------------------------
@@ -70,8 +73,7 @@ cs2_localCnt = Connector {
 local_Flow = Flow {
     rule = verticalDispersion_rule,
     source = cs_localCnt,
-    target = cs2_localCnt,
-    timer = timer
+    target = cs2_localCnt
 }
 --------------------------------------------------------------
 -- MODEL EXECUTION

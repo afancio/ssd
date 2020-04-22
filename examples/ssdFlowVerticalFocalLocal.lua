@@ -1,51 +1,52 @@
-
--- @example Implementation of a simple vertical local Flow.
+-- @example Implementation of a simple vertical Focal to Local Flow (funnel effect).
+-- Each cell from neighborhood ("neight3x3") of a cell in a cellular space (9x9) transfers
+-- part of its attribute stock at a rate defined by f (t, y) to the
+-- cell attribute spatially corresponding to the central cell of the
+-- neighborhood of another cellular space.
 -- @image ssdFlowVerticalFocalLocal.png
 
 import("ssd")
---dofile("../lua/Flow.lua") --Arquivo deve ser colocado no HOME
---dofile("../lua/Connector.lua") --Arquivo deve ser colocado no HOME
-randomRate = Random{seed = 1}
-randomBoolean = Random{true, false}
+
+---------------------------------------------------------------
+-- # SPACE # Creation
+randomRate = Random { seed = 1 }
+randomBoolean = Random { true, false }
 emptyCell = Cell {
     stock = 0
 }
 fullCell = Cell {
-    stock = Random{0, 20, 50, 100}
+    stock = Random { 0, 20, 50, 100 }
 }
 cs = CellularSpace {
     xdim = 9,
-    instance = fullCell--,
-    --init = function(self)
-     --           self:get(4,4).stock = 100
-    --        end
+    instance = fullCell
 }
 cs2 = CellularSpace {
     xdim = 9,
     instance = emptyCell
 }
-cs:createNeighborhood{
+cs:createNeighborhood {
     name = "neight3x3",
     strategy = "mxn"
 }
-mapCs = Map{
-	target = cs,
-	select = "stock",
-	min = 0,
-	max = 100,
-	slices = 10,
-	color = "Blues"
+mapCs = Map {
+    target = cs,
+    select = "stock",
+    min = 0,
+    max = 100,
+    slices = 10,
+    color = "Blues"
 }
-mapCs2 = Map{
-	target = cs2,
-	select = "stock",
-	min = 0,
-	max = 100,
-	slices = 10,
-	color = "Blues"
+mapCs2 = Map {
+    target = cs2,
+    select = "stock",
+    min = 0,
+    max = 100,
+    slices = 10,
+    color = "Blues"
 }
-----------------------------------------------------------------------
--- TIMER INSTANTIATION
+---------------------------------------------------------------
+-- Timer DECLARATION
 timer = Timer {
     Event {
         action = function()
@@ -56,8 +57,8 @@ timer = Timer {
             return false
         end
     },
-    Event{action = mapCs},
-    Event{action = mapCs2}
+    Event { action = mapCs },
+    Event { action = mapCs2 }
 }
 
 ----------------------------------------------------------------------
@@ -74,15 +75,13 @@ cs_focalCnt = Connector {
 cs2_localCnt = Connector {
     collection = cs2,
     attribute = "stock",
-
 }
 ---------------------------------------------------------------
 -- Flow OPERATORS
 focal_Flow = Flow {
     rule = verticalDispersion_rule,
     source = cs_focalCnt,
-    target = cs2_localCnt,
-    timer = timer
+    target = cs2_localCnt
 }
 --------------------------------------------------------------
 -- MODEL EXECUTION
@@ -102,5 +101,3 @@ end)
 forEachCell(cs2, function(cell)
     print(cell.stock)
 end)
-
---os.exit(0)
