@@ -90,11 +90,6 @@ map2 = Map {
 
 cs:createNeighborhood()
 
-itrule = Trajectory {
-    target = cs,
-    select = function(cell) return cell.state == BURNING end
-}
-
 forest = Trajectory {
     target = cs,
     select = function(cell) return (cell.state >= BIOMASS1 and cell.state < BIOMASS5) end

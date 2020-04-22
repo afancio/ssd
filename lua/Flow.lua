@@ -189,8 +189,8 @@ local function source_FlowintegrationEuler(df, initCond, a, b, delta, initCondSe
     end
 end
 
---[[ --Fazer
---- Implements the Heun (Euler Second Order) Method to integrate ordinary differential equations.
+--[[ --TODO
+-- Implements the Heun (Euler Second Order) Method to integrate ordinary differential equations.
 -- It is a method of type Predictor-Corrector.
 -- @arg df The differential equation.
 -- @arg initCond The initial condition that must be satisfied.
@@ -238,7 +238,7 @@ function integrationHeun(df, initCond, a, b, delta)
 	end
 end
 
---- Implements the Runge-Kutta Method (Fourth Order) to integrate ordinary differential equations.
+-- Implements the Runge-Kutta Method (Fourth Order) to integrate ordinary differential equations.
 -- @arg df The differential equation.
 -- @arg initCond The initial condition that must be satisfied.
 -- @arg a The value of 'a' in the interval [a,b[.
@@ -782,49 +782,77 @@ end
 -- @arg data.target : Connector that defines the collection of cells that will be used to target the calculated Flow
 -- from the Flow the source.
 -- @arg data.feedbackLoop : boolean control. If true, the souce attributes will be included to flow rule.
--- @usage -- DONTRUN
--- import("ssd")
--- cell = Cell {
--- stock = 100
--- }
--- cell2 = Cell {
--- stock = 0
--- }
--- cs = CellularSpace {
--- xdim = 3,
--- instance = cell
--- }
--- cs2 = CellularSpace {
--- xdim = 3,
--- instance = cell2
--- }
+-- @usage DONTRUN
+--import("ssd")
+-- ---------------------------------------------------------------
+-- -- # SPACE # Creation
+--emptyCell = Cell {
+--    stock = 0
+--}
+--fullCell = Cell {
+--    stock = 100
+--}
+--cs = CellularSpace {
+--    xdim = 9,
+--    instance = fullCell
+--}
+--cs2 = CellularSpace {
+--    xdim = 9,
+--    instance = emptyCell
+--}
+--
+--mapCs = Map {
+--    target = cs,
+--    select = "stock",
+--    min = 0,
+--    max = 100,
+--    slices = 10,
+--    color = "Blues"
+--}
+--mapCs2 = Map {
+--    target = cs2,
+--    select = "stock",
+--    min = 0,
+--    max = 100,
+--    slices = 10,
+--    color = "Blues"
+--}
+-----------------------------------------------------------------
+-- -- Timer DECLARATION
 -- timer = Timer {
--- Event {
--- action = function()
--- cs:synchronize()
--- cs2:synchronize()
--- return false
--- end
--- },
--- }
+--    Event {
+--        action = function()
+--            cs:synchronize()
+--            cs2:synchronize()
+--            return false
+--        end
+--    },
+--    Event { action = mapCs },
+--    Event { action = mapCs2 }
+--}
+--
+-- ----------------------------------------------------------------------
+-- -- CHANGE RATES AND RULES
+--verticalDispersion_rate = 0.5
+--verticalDispersion_rule = function(t, stock) return verticalDispersion_rate * stock end
+-- ----------------------------------------------------------------------
 -- -- ConnectorS
--- cs_localCnt = Connector {
--- collection = cs,
--- attribute = "stock"
--- }
--- cs2_localCnt = Connector {
--- collection = cs2,
--- attribute = "stock"
--- }
+--cs_localCnt = Connector {
+--    collection = cs,
+--    attribute = "stock"
+--}
+--cs2_localCnt = Connector {
+--    collection = cs2,
+--    attribute = "stock"
+--}
+-- ---------------------------------------------------------------
 -- -- Flow OPERATORS
--- vertical_local_Flow = Flow {
--- rule = function(t, stock) return 0.5 * stock end,
--- source = cs_localCnt,
--- target = cs2_localCnt,
--- timer = timer
--- }
--- -- MODEL EXECUTION
--- timer:run(1)
+--local_Flow = Flow {
+--    rule = verticalDispersion_rule,
+--    source = cs_localCnt,
+--    target = cs2_localCnt
+--}
+--timer:run(1)
 function Flow(data)
     data.type = "Flow"
     verifyFlowData(data)
