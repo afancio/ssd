@@ -154,6 +154,42 @@ BiomassGrowth = Flow {
     source = nil,
     target = eachBiomassGroundCell
 }
+--print("#timer", #timer)
+--print("#ssdGlobals.__ssdTimer", #ssdGlobals.__ssdTimer)
+
+--Solução sendo testada -- não consigo fazer a sobrecarga
+--[[
+
+forEachOrderedElement(ssdGlobals.__ssdTimer:getEvents(), function(idx, value, mtype)
+    if mtype == "Event" then
+        timer:add(value)
+    else
+        incompatibleTypeError(idx, "Event", value)
+    end
+end)
+ssdGlobals.__ssdTimer:clear()
+ssdGlobals.__ssdTimer:reset()
+
+print("#timer", #timer)
+print("#ssdGlobals.__ssdTimer", #ssdGlobals.__ssdTimer)
+]]
+
 timer:run(60)
+--timer:runTest()
+--print("#timer", #timer)
+--print("#ssdGlobals.__ssdTimer", #ssdGlobals.__ssdTimer)
+
+----ssdGlobals = nil
+--collectgarbage("collect")
+
+--print ("ssdGlobals.___oldTimerFactory")
+--print (ssdGlobals.___oldTimerFactory)
+--print ("ssdGlobals.___userDefinedTimer")
+--print (ssdGlobals.___userDefinedTimer)
+--ssdGlobals.___oldTimerFactory = nil
+--ssdGlobals.___userDefinedTimer = nil
+--___userDefinedTimer:clear()
+--___userDefinedTimer:reset()
+--timer:clear()
 --timer:reset()
 --collectgarbage("collect")

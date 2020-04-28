@@ -24,9 +24,11 @@
 -- dofile("../lua/Connector.lua") --Arquivo deve ser colocado no HOME
 
 DISABLE_CELL_STOCK_LIMIT = true
-_DELTA_T = nil
-_COLLECTIONS_SYCHRONIZED = nil
 
+ssdGlobals = {}
+ssdGlobals.__deltaT = nil
+ssdGlobals.__CollectionSynchonized = nil
+ssdGlobals.__ssdTimer = Timer()
 -- Flow use guide
 -- Add in terraMe: dofile("Flow_Public_Version_5.lua")
 -- Create: Cell, CellularSpace, Trajectory or createNeighborhood;
@@ -663,34 +665,40 @@ end
 
 -- @usage synchronizedOptimization(data)
 local function synchronizedOptimization(data)
-    -- print ("_DELTA_T = ",_DELTA_T)
-    if _DELTA_T == nil then
-        _DELTA_T = data.eventTime
+    --if (ssdGlobals == nil) then
+    --    ssdGlobals = {}
+    --    ssdGlobals.__deltaT = nil
+    --    ssdGlobals.__CollectionSynchonized = nil
+    --end
+
+    -- print ("ssdGlobals.__deltaT = ",ssdGlobals.__deltaT)
+    if ssdGlobals.__deltaT == nil then
+        ssdGlobals.__deltaT = data.eventTime
         if (#data.collection.cells > 0) then
             data.collection:synchronize()
-            _COLLECTIONS_SYCHRONIZED = { next = _COLLECTIONS_SYCHRONIZED, value = data.collection }
+            ssdGlobals.__CollectionSynchonized = { next = ssdGlobals.__CollectionSynchonized, value = data.collection }
         end
-    elseif _DELTA_T < data.eventTime then
-        _DELTA_T = data.eventTime
+    elseif ssdGlobals.__deltaT < data.eventTime then
+        ssdGlobals.__deltaT = data.eventTime
         if (#data.collection.cells > 0) then
             data.collection:synchronize()
-            _COLLECTIONS_SYCHRONIZED = nil
-            _COLLECTIONS_SYCHRONIZED = { next = _COLLECTIONS_SYCHRONIZED, value = data.collection }
+            ssdGlobals.__CollectionSynchonized = nil
+            ssdGlobals.__CollectionSynchonized = { next = ssdGlobals.__CollectionSynchonized, value = data.collection }
         end
-    elseif _DELTA_T == data.eventTime then
+    elseif ssdGlobals.__deltaT == data.eventTime then
         local alreadySynchronized = false
-        local l = _COLLECTIONS_SYCHRONIZED
+        local l = ssdGlobals.__CollectionSynchonized
         while l do
-            if _COLLECTIONS_SYCHRONIZED.value == data.collection then
+            if ssdGlobals.__CollectionSynchonized.value == data.collection then
                 alreadySynchronized = true
             end
             l = l.next
         end
         if not alreadySynchronized then
-            -- print (data.eventTime, "_DELTA_T == data.eventTime SYNK")
+            -- print (data.eventTime, "ssdGlobals.__deltaT == data.eventTime SYNK")
             if (#data.collection.cells > 0) then
                 data.collection:synchronize()
-                _COLLECTIONS_SYCHRONIZED = { next = _COLLECTIONS_SYCHRONIZED, value = data.collection }
+                ssdGlobals.__CollectionSynchonized = { next = ssdGlobals.__CollectionSynchonized, value = data.collection }
             end
             --else
             -- print (data.eventTime, "Collection already synchronized()")
@@ -714,16 +722,19 @@ local function verifyFlowData(data)
     elseif data.target.type ~= "Connector" then
         customError("Invalid type. Flow only work with Connector, got " .. type(data.target.type) .. ".")
     end
-    if data.timer == nil then -- Não é quando ele não foi criado, mas sim quando ele não foi informado.
+    if data.timer == nil then
         --data.timer =  Timer() --Solução Pedro
-        data.timer = ___userDefinedTimer
-        --data.timer =  _env.timer --Tentei, mas não deu certo.
-        --customError("Atrribute timer is necessary. Add a timer to Flow call.") --PEDRO - versao ssd estão atualmente assim
+        --data.timer = ssdGlobals.___userDefinedTimer --Solução Tiago
+        data.timer = ssdGlobals.__ssdTimer --Solução Andre
+        --print("data.timer", data.timer)
     end
-    if (___userDefinedTimer == nil) then
-        customError("A Timer mshould declare a Timer before declaring any FLOW.")
+    --TIAGO TIMER
+    --[[
+    if (ssdGlobals.___userDefinedTimer == nil) then
+        customError("A Timer should be declare before declaring any FLOW.")
         return false
     end
+    ]]
     --    if data.finalTime == nil then
     --        data.finalTime = 5000
     --    end
@@ -758,7 +769,7 @@ local function verifyFlowData(data)
 
     --"euler","rungekutta" and "heun"
     if data.method == nil then --TODO implementar os demais métodos
-        method = "euler"
+        data.method = "euler"
     end
     -- fazer chamada assim
     --local result = switch(attrs, "method"):caseof {
@@ -853,6 +864,7 @@ end
 -- target = cs2_localCnt
 -- }
 -- timer:run(1)
+-- ssdGlobals = nil
 function Flow(data)
     data.type = "Flow"
     verifyFlowData(data)
@@ -1010,12 +1022,18 @@ Timer_ = {
 }]]
 
 
+--BLOCO TIAGO REMOVIDO
+--[[
+
 -- To overload Timer factory keeping compatibility with previows models, it is necessary to save the original Timer factory before
---- Creates a global timer where the flow events will be storeged ___userDefinedTimer.
-___oldTimerFactory = Timer
+-- Creates a global timer where the flow events will be storeged ___userDefinedTimer.
+-- @usage DONTRUN
+ssdGlobals.___oldTimerFactory = Timer
+--___oldTimerFactory = Timer
+
 --print("Timer", Timer, type(Timer))  -- uncomment this line to understand what I am doing
 --- Creates a global timer where the flow events will be storeged ___userDefinedTimer.
--- @arg eventsTable A set of Events.
+-- @arg data.... A set of Events.
 -- @usage timer = Timer{
 -- Event{action = function()
 -- print("each time step")
@@ -1029,11 +1047,342 @@ ___oldTimerFactory = Timer
 -- }
 --
 -- timer:run(10)
-Timer = function(self, eventsTable) -- overloading
+Timer = function(data) -- overloading
+    --Timer = function(self, eventsTable) -- overloading
 
+    if (ssdGlobals == nil) then
+        ssdGlobals = {}
+        ssdGlobals.__deltaT = nil
+        ssdGlobals.__CollectionSynchonized = nil
+        ssdGlobals.___oldTimerFactory = Timer
+    end
     -- save in a global variable the user defined Timer
     -- NOTE: it will always save the last user define Timer
-    ___userDefinedTimer = ___oldTimerFactory(self, eventsTable)
+    --ssdGlobals = {}
+    ssdGlobals.___userDefinedTimer = self
+    ssdGlobals.___userDefinedTimer = ssdGlobals.___oldTimerFactory(data)
+    --___userDefinedTimer = ___oldTimerFactory(self, eventsTable)
 
-    return ___userDefinedTimer
+    return ssdGlobals.___userDefinedTimer
+end
+
+]]
+
+
+-- Run the Timer until a given final time. It manages the Event queue according to their execution
+-- times and priorities. The Event with lower time will be executed in each step. If there are two
+-- Events to be executed at the same time, it executes the one with lower priority. If both have
+-- the same priority, it executes the one that was scheuled first for that time.
+-- In order to activate an Event, the Timer executes its action, passing the Event itself as argument.
+-- If the action of the Event does not return false, the Event is scheduled to execute again according to
+-- its period. The Timer then repeats its execution again and again. It stops only when all its
+-- Events are scheduled to execute after the final time, or when there are no remaining Events.
+-- @arg finalTime A number representing the final time of the simulation.
+-- This argument is mandatory.
+-- @usage timer = Timer{
+-- Event{action = function() print("step") end}
+-- }
+--
+-- timer:run(10)
+--[[
+
+
+function Timer:run2(self, finalTime)
+    print("TEST RUN")
+    if (ssdGlobals ~= nil) then
+        if (ssdGlobals.__ssdTimer ~= nil) then
+            forEachOrderedElement(ssdGlobals.__ssdTimer:getEvents(), function(idx, value, mtype)
+                if mtype == "Event" then
+                    self:add(value)
+                else
+                    incompatibleTypeError(idx, "Event", value)
+                end
+            end)
+            --ssdGlobals = nil
+            ssdGlobals.__ssdTimer:clear()
+            ssdGlobals.__ssdTimer:reset()
+        end
+    end
+end
+
+]]
+
+--oldFunction = Timer.run --store old
+
+--[[
+
+___oldTimerFactory = Timer
+Timer.run = function(self, finalTime) --overwrite the old function
+    print("TEST RUN")
+    if (ssdGlobals ~= nil) then
+        if (ssdGlobals.__ssdTimer ~= nil) then
+            forEachOrderedElement(ssdGlobals.__ssdTimer:getEvents(), function(idx, value, mtype)
+                if mtype == "Event" then
+                    self:add(value)
+                else
+                    incompatibleTypeError(idx, "Event", value)
+                end
+            end)
+            --ssdGlobals = nil
+            ssdGlobals.__ssdTimer:clear()
+            ssdGlobals.__ssdTimer:reset()
+        end
+    end
+
+    mandatoryArgument(1, "number", finalTime)
+
+    if finalTime < self.time then
+        local msg = "Simulating until a time (" .. finalTime ..
+                ") before the current simulation time (" .. self:getTime() .. ")."
+        customWarning(msg)
+    end
+
+    while true do
+        if getn(self.events) == 0 then return end
+
+        local ev = self.events[1]
+        if ev.time > finalTime then
+            self.time = finalTime
+            return
+        end
+
+        self.time = ev.time
+
+        table.remove(self.events, 1)
+
+        local result = ev.action(ev, self)
+
+        if result == false or ev.period == 0 then
+            ev.parent = nil
+        else
+            ev.time = ev.time + ev.period
+
+            local floor = math.floor(ev.time)
+            local ceil = math.ceil(ev.time)
+
+            if math.abs(ev.time - floor) < sessionInfo().round then
+                ev.time = floor
+            elseif math.abs(ev.time - ceil) < sessionInfo().round then
+                ev.time = ceil
+            end
+            self:add(ev)
+        end
+    end
+end
+]]
+
+--[[
+
+___oldTimerFactory = Timer
+Timer = function(data) -- overloading
+    --Timer = function(self, eventsTable) -- overloading
+    -- save in a global variable the user defined Timer
+    -- NOTE: it will always save the last user define Timer
+    --ssdGlobals = {}
+    run = function(self, finalTime)
+        print("TEST RUN")
+        if (ssdGlobals ~= nil) then
+            if (ssdGlobals.__ssdTimer ~= nil) then
+                forEachOrderedElement(ssdGlobals.__ssdTimer:getEvents(), function(idx, value, mtype)
+                    if mtype == "Event" then
+                        self:add(value)
+                    else
+                        incompatibleTypeError(idx, "Event", value)
+                    end
+                end)
+                --ssdGlobals = nil
+                ssdGlobals.__ssdTimer:clear()
+                ssdGlobals.__ssdTimer:reset()
+            end
+        end
+
+        mandatoryArgument(1, "number", finalTime)
+
+        if finalTime < self.time then
+            local msg = "Simulating until a time (" .. finalTime ..
+                    ") before the current simulation time (" .. self:getTime() .. ")."
+            customWarning(msg)
+        end
+
+        while true do
+            if getn(self.events) == 0 then return end
+
+            local ev = self.events[1]
+            if ev.time > finalTime then
+                self.time = finalTime
+                return
+            end
+
+            self.time = ev.time
+
+            table.remove(self.events, 1)
+
+            local result = ev.action(ev, self)
+
+            if result == false or ev.period == 0 then
+                ev.parent = nil
+            else
+                ev.time = ev.time + ev.period
+
+                local floor = math.floor(ev.time)
+                local ceil = math.ceil(ev.time)
+
+                if math.abs(ev.time - floor) < sessionInfo().round then
+                    ev.time = floor
+                elseif math.abs(ev.time - ceil) < sessionInfo().round then
+                    ev.time = ceil
+                end
+                self:add(ev)
+            end
+        end
+    end
+
+    local overridedTimer = self
+    overridedTimer = ___oldTimerFactory(data)
+    --___userDefinedTimer = ___oldTimerFactory(self, eventsTable)
+
+    return overridedTimer
+end
+
+]]
+
+
+--[[
+
+Timer = function(data) -- overloading
+
+    run = function(self, finalTime)
+        print("TEST RUN")
+        if (ssdGlobals ~= nil) then
+            if (ssdGlobals.__ssdTimer ~= nil) then
+                forEachOrderedElement(ssdGlobals.__ssdTimer:getEvents(), function(idx, value, mtype)
+                    if mtype == "Event" then
+                        self:add(value)
+                    else
+                        incompatibleTypeError(idx, "Event", value)
+                    end
+                end)
+                --ssdGlobals = nil
+                ssdGlobals.__ssdTimer:clear()
+                ssdGlobals.__ssdTimer:reset()
+            end
+        end
+
+        mandatoryArgument(1, "number", finalTime)
+
+        if finalTime < self.time then
+            local msg = "Simulating until a time (" .. finalTime ..
+                    ") before the current simulation time (" .. self:getTime() .. ")."
+            customWarning(msg)
+        end
+
+        while true do
+            if getn(self.events) == 0 then return end
+
+            local ev = self.events[1]
+            if ev.time > finalTime then
+                self.time = finalTime
+                return
+            end
+
+            self.time = ev.time
+
+            table.remove(self.events, 1)
+
+            local result = ev.action(ev, self)
+
+            if result == false or ev.period == 0 then
+                ev.parent = nil
+            else
+                ev.time = ev.time + ev.period
+
+                local floor = math.floor(ev.time)
+                local ceil = math.ceil(ev.time)
+
+                if math.abs(ev.time - floor) < sessionInfo().round then
+                    ev.time = floor
+                elseif math.abs(ev.time - ceil) < sessionInfo().round then
+                    ev.time = ceil
+                end
+                self:add(ev)
+            end
+        end
+    end
+
+    return Timer
+end
+]]
+
+oldTimer_ = Timer_ --store old
+--- Run the Timer until a given final time. It manages the Event queue according to their execution
+-- times and priorities. The Event with lower time will be executed in each step. If there are two
+-- Events to be executed at the same time, it executes the one with lower priority. If both have
+-- the same priority, it executes the one that was scheuled first for that time.
+-- In order to activate an Event, the Timer executes its action, passing the Event itself as argument.
+-- If the action of the Event does not return false, the Event is scheduled to execute again according to
+-- its period. The Timer then repeats its execution again and again. It stops only when all its
+-- Events are scheduled to execute after the final time, or when there are no remaining Events.
+-- @arg finalTime A number representing the final time of the simulation.
+-- This argument is mandatory.
+-- @usage DONTRUN
+-- timer = Timer{
+-- Event{action = function() print("step") end}
+-- }
+--
+-- timer:run(10)
+Timer_.run = function(self, finalTime) --overwrite the old function
+    if (ssdGlobals ~= nil) then
+        if (ssdGlobals.__ssdTimer ~= nil) then
+            forEachOrderedElement(ssdGlobals.__ssdTimer:getEvents(), function(idx, value, mtype)
+                if mtype == "Event" then
+                    self:add(value)
+                else
+                    incompatibleTypeError(idx, "Event", value)
+                end
+            end)
+            --ssdGlobals = nil
+            ssdGlobals.__ssdTimer:clear()
+            ssdGlobals.__ssdTimer:reset()
+        end
+    end
+
+    mandatoryArgument(1, "number", finalTime)
+
+    if finalTime < self.time then
+        local msg = "Simulating until a time (" .. finalTime ..
+                ") before the current simulation time (" .. self:getTime() .. ")."
+        customWarning(msg)
+    end
+
+    while true do
+        if getn(self.events) == 0 then return end
+
+        local ev = self.events[1]
+        if ev.time > finalTime then
+            self.time = finalTime
+            return
+        end
+
+        self.time = ev.time
+
+        table.remove(self.events, 1)
+
+        local result = ev.action(ev, self)
+
+        if result == false or ev.period == 0 then
+            ev.parent = nil
+        else
+            ev.time = ev.time + ev.period
+
+            local floor = math.floor(ev.time)
+            local ceil = math.ceil(ev.time)
+
+            if math.abs(ev.time - floor) < sessionInfo().round then
+                ev.time = floor
+            elseif math.abs(ev.time - ceil) < sessionInfo().round then
+                ev.time = ceil
+            end
+            self:add(ev)
+        end
+    end
 end

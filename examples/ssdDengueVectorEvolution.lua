@@ -272,3 +272,4 @@ pulpsDeath = Flow {
 }
 
 timer:run(40)
+--ssdGlobals = nil

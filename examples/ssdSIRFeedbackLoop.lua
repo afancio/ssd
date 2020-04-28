@@ -84,6 +84,7 @@ recover = Flow {
     target = csCity_local_recovered,
 }
 timer:run(100)
+--ssdGlobals = nil
 print("R0",R0)
 --[[
 --ORIGINAL MODEL

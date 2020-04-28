@@ -357,3 +357,4 @@ flood_Flow = Flow {
 --------------------------------------------------------------
 -- MODEL EXECUTION
 timer:run(500)
+--ssdGlobals = nil

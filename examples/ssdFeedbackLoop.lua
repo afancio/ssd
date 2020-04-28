@@ -102,6 +102,7 @@ forEachCell(cs2, function(cell)
 end)
 
 timer:run(1)
+--ssdGlobals = nil
 
 print("After Run")
 print("cs")

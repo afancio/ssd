@@ -155,3 +155,4 @@ precipitation_Flow = Flow {
 --------------------------------------------------------------
 -- MODEL EXECUTION
 timer:run(100)
+--ssdGlobals = nil

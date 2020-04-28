@@ -204,6 +204,7 @@ DeathPredator = Flow {
 }
 
 timer:run(2000)
+--ssdGlobals = nil
 
 --[[ ORIGINAL MODEL
 

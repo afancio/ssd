@@ -94,6 +94,7 @@ forEachCell(cs2, function(cell)
 end)
 
 timer:run(10)
+--ssdGlobals = nil
 
 forEachCell(cs, function(cell)
     print(cell.stock)

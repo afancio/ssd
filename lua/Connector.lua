@@ -139,6 +139,7 @@ end
 --    target = cs2_localCnt
 --}
 --timer:run(1)
+--ssdGlobals = nil
 function Connector(data)
     data.type = "Connector"
     verifyConnectorData(data)

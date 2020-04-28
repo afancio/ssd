@@ -218,3 +218,4 @@ Flow {
 }
 
 timer:run(60)
+--ssdGlobals = nil

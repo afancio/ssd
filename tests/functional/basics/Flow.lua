@@ -2,8 +2,10 @@
 -- Author: Amâncio, André Fonseca
 
 return {
-    FlowVerticalLocal = function(unitTest)
-        --Flow LOCAL cs->cs
+    Flow = function(unitTest)
+
+        ---------------------------------------------------------------
+        -- # SPACE # Creation
         emptyCell = Cell {
             stock = 0
         }
@@ -11,11 +13,11 @@ return {
             stock = 100
         }
         cs = CellularSpace {
-            xdim = 10,
+            xdim = 9,
             instance = fullCell
         }
         cs2 = CellularSpace {
-            xdim = 10,
+            xdim = 9,
             instance = emptyCell
         }
 
@@ -35,18 +37,20 @@ return {
             slices = 10,
             color = "Blues"
         }
-        ----------------------------------------------------------------------
-        -- TIMER INSTANTIATION
+        ---------------------------------------------------------------
+        -- Timer DECLARATION
         timer = Timer {
             Event {
                 action = function()
+                    --cs:init()
                     cs:synchronize()
+                    --cs2:init()
                     cs2:synchronize()
                     return false
                 end
             },
-            Event {action = mapCs },
-            Event {action = mapCs2 }
+            Event { action = mapCs },
+            Event { action = mapCs2 }
         }
 
         ----------------------------------------------------------------------
@@ -59,18 +63,23 @@ return {
             collection = cs,
             attribute = "stock"
         }
+        unitTest:assertEquals(cs_localCnt.type, "Connector")
+
         cs2_localCnt = Connector {
             collection = cs2,
             attribute = "stock"
         }
+        unitTest:assertEquals(cs2_localCnt.type, "Connector")
+
         ---------------------------------------------------------------
         -- Flow OPERATORS
         local_Flow = Flow {
             rule = verticalDispersion_rule,
             source = cs_localCnt,
-            target = cs2_localCnt,
-            timer = timer
+            target = cs2_localCnt
         }
+        --unitTest:assertEquals(local_Flow.type, "Flow")
+
         --------------------------------------------------------------
         -- MODEL EXECUTION
 
@@ -78,14 +87,12 @@ return {
         unitTest:assertEquals(cs:get(5, 5).stock, 100, 0.01)
 
         timer:run(1)
+        --ssdGlobals = nil
 
         unitTest:assertEquals(cs:get(1, 1).stock, 50, 0.01)
         unitTest:assertEquals(cs:get(5, 5).stock, 50, 0.01)
 
         unitTest:assertEquals(cs2:get(1, 1).stock, 50, 0.01)
         unitTest:assertEquals(cs2:get(5, 5).stock, 50, 0.01)
-
-        --unitTest:assertSnapshot(fvl.mapCs, "FlowVerticalLocal_mapCs.png", 0.05)
-        --unitTest:assertSnapshot(fvl.mapCs2, "FlowVerticalLocal_mapCs2.png", 0.05)
-    end
+    end;
 }

@@ -225,3 +225,4 @@ Flow {
 }
 --ETAPA 3 FIM
 timer:run(100)
+--ssdGlobals = nil

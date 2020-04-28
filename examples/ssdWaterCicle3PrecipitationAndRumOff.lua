@@ -311,3 +311,4 @@ runOff_Flow = Flow {
 --------------------------------------------------------------
 -- MODEL EXECUTION
 timer:run(200)
+--ssdGlobals = nil
