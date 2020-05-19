@@ -58,6 +58,12 @@ local function verifyConnectorData(data)
     --print("verifyConnectorData::data.neight", data.neight)
 end
 
+Connector_ = {
+	type_ = "Connector"
+}
+metaTableConnector_= {
+	__index = Connector_, __tostring = _Gtme.tostring
+}
 
 --- A Connector operation represents a target or source of energy, information or matter of a spatial region.
 -- @arg data.collection : Cellular Space or Trajectory - A collection of cells that will be used to calculate
@@ -68,13 +74,10 @@ end
 --  over which the Flow will operate. Optional. Atencion. If used, the flow rule must have an extra argument. Ex:
 --  f (t, stock, stock2).
 -- @arg data.neight : Neighborhood - Neighborhood name defined on the collection of the energy Flow. Optional.
--- @usage DONTRUN
+-- @usage
 --import("ssd")
 -- ---------------------------------------------------------------
 -- -- # SPACE # Creation
---emptyCell = Cell {
---    stock = 0
---}
 --fullCell = Cell {
 --    stock = 100
 --}
@@ -82,66 +85,14 @@ end
 --    xdim = 9,
 --    instance = fullCell
 --}
---cs2 = CellularSpace {
---    xdim = 9,
---    instance = emptyCell
---}
---
---mapCs = Map {
---    target = cs,
---    select = "stock",
---    min = 0,
---    max = 100,
---    slices = 10,
---    color = "Blues"
---}
---mapCs2 = Map {
---    target = cs2,
---    select = "stock",
---    min = 0,
---    max = 100,
---    slices = 10,
---    color = "Blues"
---}
------------------------------------------------------------------
--- -- Timer DECLARATION
--- timer = Timer {
---    Event {
---        action = function()
---            cs:synchronize()
---            cs2:synchronize()
---            return false
---        end
---    },
---    Event { action = mapCs },
---    Event { action = mapCs2 }
---}
---
--- ----------------------------------------------------------------------
--- -- CHANGE RATES AND RULES
---verticalDispersion_rate = 0.5
---verticalDispersion_rule = function(t, stock) return verticalDispersion_rate * stock end
--- ----------------------------------------------------------------------
 -- -- ConnectorS
 --cs_localCnt = Connector {
 --    collection = cs,
 --    attribute = "stock"
 --}
---cs2_localCnt = Connector {
---    collection = cs2,
---    attribute = "stock"
---}
--- ---------------------------------------------------------------
--- -- Flow OPERATORS
---local_Flow = Flow {
---    rule = verticalDispersion_rule,
---    source = cs_localCnt,
---    target = cs2_localCnt
---}
---timer:run(1)
---ssdGlobals = nil
 function Connector(data)
     data.type = "Connector"
     verifyConnectorData(data)
+    setmetatable(data, metaTableConnector_)
     return data
 end

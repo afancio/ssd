@@ -13,6 +13,8 @@
 -- @image ssdWaterCicle3recipitationAndRumOff.png
 
 import("ssd")
+--dofile("../lua/Flow.lua")
+--dofile("../lua/Connector.lua")
 
 ---------------------------------------------------------------
 -- # SPACE # Creation
@@ -208,7 +210,7 @@ timer = Timer {
     --Event{period = 10, action = chartsummary2},
     Event {
         --start = 1,
-        --period = 1,
+        ----period = 1,
         --priority = 0,
         action = function(event)
             clouds_tj:rebuild()
@@ -220,8 +222,8 @@ timer = Timer {
     },
     --SUMMARY DATA MODEL EVENT
     Event {
-        start = 0,
-        --period = 1,
+        --start = 0,
+        ----period = 1,
         priority = 9,
         action = function(event)
             print('=========================================================================================================== ')
@@ -275,27 +277,23 @@ timer = Timer {
         end
     },
 }
-----------------------------------------------------------------------
--- CHANGE RATES AND RULES
-precipitation_rate = 0.01
-precipitation_rule = function(t, stock) return precipitation_rate * stock end
-dispersion_rate = 0.5
-dispersion_rule = function(t, stock) return dispersion_rate * stock end
+
 ----------------------------------------------------------------------
 -- ConnectorS
-ground_localCnt = Connector {
-    collection = ground_cs,
-    attribute = "water"
-}
 clouds_zonalCnt = Connector {
     collection = clouds_tj,
     attribute = "atmosphereWater"
 }
-aroundTheGround_focalCnt = Connector {
+ground_localCnt = Connector {
     collection = ground_cs,
-    attribute = "water",
-    neight = "neighGround"
+    attribute = "water"
 }
+----------------------------------------------------------------------
+-- CHANGE RATES AND RULES
+precipitation_rate = 0.01
+precipitation_rule = function(t, sourceCell, targetCell, neighborSourceCell, neighborTargetCell)
+    return precipitation_rate * sourceCell.atmosphereWater
+end
 ---------------------------------------------------------------
 -- Flow OPERATORS
 precipitation_Flow = Flow {
@@ -303,6 +301,21 @@ precipitation_Flow = Flow {
     source = clouds_zonalCnt,
     target = ground_localCnt
 }
+----------------------------------------------------------------------
+-- ConnectorS
+aroundTheGround_focalCnt = Connector {
+    collection = ground_cs,
+    attribute = "water",
+    neight = "neighGround"
+}
+----------------------------------------------------------------------
+-- CHANGE RATES AND RULES
+dispersion_rate = 0.5
+dispersion_rule = function(t, sourceCell, targetCell, neighborSourceCell, neighborTargetCell)
+    return dispersion_rate * sourceCell.water
+end
+---------------------------------------------------------------
+-- Flow OPERATORS
 runOff_Flow = Flow {
     rule = dispersion_rule,
     source = ground_localCnt,

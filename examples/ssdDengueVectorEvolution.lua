@@ -8,6 +8,8 @@
 -- @image ssdDengueVectorEvolution4Graphs.png
 
 import("ssd")
+--dofile("../lua/Flow.lua")
+--dofile("../lua/Connector.lua")
 
 ---------------------------------------------------------------
 -- # SPACE # Creation
@@ -106,7 +108,7 @@ timer = Timer {
 
     Event {
         --time = 1,
-        --period = 1,
+        ----period = 1,
         priority = 9,
         action = function(event)
             --delay_s(DELAY)
@@ -146,57 +148,54 @@ timer = Timer {
     },
 }
 
----------------------------------------------------------------
--- CHANGE RATES AND RULES
-txO1 = 0.01 -- 0,0003333333
-funcO1 = function(t, stock, stock2) return txO1 * stock * stock2 end
 
-txO2 = 0.0042424242 -- 0,0001388889
-funcO2 = function(t, stock, stock2) return txO2 * stock * stock2 end
-
-txO3 = 0.0104848485 --0,0003588889
-funcO3 = function(t, stock, stock2) return txO3 * stock * stock2 end
-
-txM1 = 1 / 100
-funcFlowM1 = function(t, stock) return txM1 * stock end
-txM2 = 1 / 3
-funcFlowM2 = function(t, stock) return txM2 * stock end
-txM3 = 1 / 70
-funcFlowM3 = function(t, stock) return txM3 * stock end
-txM4 = 1 / 17.5
-funcFlowM4 = function(t, stock) return txM4 * stock end
-
----------------------------------------------------------------
--- Connectors and Flow OPERATORS
 
 --Flow (funcFlowM1, 1, 20, 1, csField, "eggs", nil, csField, "m1", nil)
+---------------------------------------------------------------
+-- Connectors
 eachEggs = Connector {
     collection = csField,
     attribute = "eggs"
 }
-
 eachDeadEggs = Connector {
     collection = csField,
     attribute = "m1"
 }
+---------------------------------------------------------------
+-- CHANGE RATES AND RULES
+txM1 = 1 / 100
+funcFlowM1 = function(t, sourceCell, targetCell, neighborSourceCell, neighborTargetCell)
+    return txM1 * sourceCell.eggs
+end
+---------------------------------------------------------------
+-- Flow OPERATORS
 eggsDeath = Flow {
     rule = funcFlowM1,
     source = eachEggs,
     target = eachDeadEggs
 }
 
+
 --Flow (funcO1, 1, 20, 1, csField, "eggs", nil, csField, "larvas", nil)
+---------------------------------------------------------------
+-- Connectors
 eachEggsAndTemperature = Connector {
     collection = csField,
     attribute = "eggs",
-    secundaryAttribute = "temperature"
+    --secundaryAttribute = "temperature"
 }
-
 eachLarvas = Connector {
     collection = csField,
     attribute = "larvas"
 }
-
+---------------------------------------------------------------
+-- CHANGE RATES AND RULES
+txO1 = 0.01 -- 0,0003333333
+funcO1 = function(t, sourceCell, targetCell, neighborSourceCell, neighborTargetCell)
+    return txO1 * sourceCell.eggs * sourceCell.temperature
+end
+---------------------------------------------------------------
+-- Flow OPERATORS
 eggsToLarvas = Flow {
     rule = funcO1,
     source = eachEggsAndTemperature,
@@ -204,11 +203,20 @@ eggsToLarvas = Flow {
 }
 
 --Flow (funcFlowM2, 1, 20, 1, csField, "larvas", nil, csField, "m2", nil)
+---------------------------------------------------------------
+-- Connectors
 eachDeadLarvas = Connector {
     collection = csField,
     attribute = "m2"
 }
-
+---------------------------------------------------------------
+-- CHANGE RATES AND RULES
+txM2 = 1 / 3
+funcFlowM2 = function(t, sourceCell, targetCell, neighborSourceCell, neighborTargetCell)
+    return txM2 * sourceCell.larvas
+end
+---------------------------------------------------------------
+-- Flow OPERATORS
 larvasDeath = Flow {
     rule = funcFlowM2,
     source = eachLarvas,
@@ -216,17 +224,25 @@ larvasDeath = Flow {
 }
 
 --Flow (funcO2, 1, 20, 1, csField, "larvas", nil, csField, "pulps", nil)
+---------------------------------------------------------------
+-- Connectors
 eachLarvasAndTemperature = Connector {
     collection = csField,
     attribute = "larvas",
-    secundaryAttribute = "temperature"
+    --secundaryAttribute = "temperature"
 }
-
 eachPulps = Connector {
     collection = csField,
     attribute = "pulps"
 }
-
+---------------------------------------------------------------
+-- CHANGE RATES AND RULES
+txO2 = 0.0042424242 -- 0,0001388889
+funcO2 = function(t, sourceCell, targetCell, neighborSourceCell, neighborTargetCell)
+    return txO2 * sourceCell.larvas * sourceCell.temperature
+end
+---------------------------------------------------------------
+-- Flow OPERATORS
 larvasTopulps = Flow {
     rule = funcO2,
     source = eachLarvasAndTemperature,
@@ -234,11 +250,20 @@ larvasTopulps = Flow {
 }
 
 --Flow (funcFlowM3, 1, 20, 1, csField, "pulps", nil, csField, "m3", nil)
+---------------------------------------------------------------
+-- Connectors
 eachDeadPulps = Connector {
     collection = csField,
     attribute = "m3"
 }
-
+---------------------------------------------------------------
+-- CHANGE RATES AND RULES
+txM3 = 1 / 70
+funcFlowM3 = function(t, sourceCell, targetCell, neighborSourceCell, neighborTargetCell)
+    return txM3 * sourceCell.pulps
+end
+---------------------------------------------------------------
+-- Flow OPERATORS
 pulpsDeath = Flow {
     rule = funcFlowM3,
     source = eachPulps,
@@ -246,17 +271,25 @@ pulpsDeath = Flow {
 }
 
 --Flow (funcO3, 1, 20, 1, csField, "pulps", nil, csField, "mosquitos", nil)
+---------------------------------------------------------------
+-- Connectors
 eachPulpsAndTemperature = Connector {
     collection = csField,
     attribute = "pulps",
-    secundaryAttribute = "temperature"
+    --secundaryAttribute = "temperature"
 }
-
 eachMosquitos = Connector {
     collection = csField,
     attribute = "mosquitos"
 }
-
+---------------------------------------------------------------
+-- CHANGE RATES AND RULES
+txO3 = 0.0104848485 --0,0003588889
+funcO3 = function(t, sourceCell, targetCell, neighborSourceCell, neighborTargetCell)
+    return txO3 * sourceCell.pulps * sourceCell.temperature
+end
+---------------------------------------------------------------
+-- Flow OPERATORS
 pulpsToMosquitos = Flow {
     rule = funcO3,
     source = eachPulpsAndTemperature,
@@ -264,12 +297,24 @@ pulpsToMosquitos = Flow {
 }
 
 --Flow (funcFlowM4, 1, 20, 1, csField, "mosquitos", nil, csField, "m4", nil)
-
+---------------------------------------------------------------
+-- Connectors
+eachDeadMosquitos = Connector {
+    collection = csField,
+    attribute = "m4"
+}
+---------------------------------------------------------------
+-- CHANGE RATES AND RULES
+txM4 = 1 / 17.5
+funcFlowM4 = function(t, sourceCell, targetCell, neighborSourceCell, neighborTargetCell)
+    return txM4 * sourceCell.mosquitos
+end
+---------------------------------------------------------------
+-- Flow OPERATORS
 pulpsDeath = Flow {
     rule = funcFlowM4,
     source = eachMosquitos,
-    target = nil
+    target = eachDeadMosquitos
 }
 
 timer:run(40)
---ssdGlobals = nil

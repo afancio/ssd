@@ -4,6 +4,8 @@
 -- @image ssdFireSpreadHeat.bmp
 
 import("ssd")
+--dofile("../lua/Flow.lua")
+--dofile("../lua/Connector.lua")
 ---------------------------------------------------------------
 randomRate = Random { seed = 10 }
 randomBoolean = Random { true, false }
@@ -68,6 +70,7 @@ mapCsHeat = Map {
     color = { "green", "red" }
 }
 chartHeat = Chart {
+    title = "Number of cells with heat x with no heat",
     target = cs,
     select = "heat_state",
     value = { "NO_HEAT", "HEAT" },
@@ -78,7 +81,7 @@ chartHeat = Chart {
 -- Timer DECLARATION
 timer = Timer {
     Event {
-        start = 0,
+        --start = 0,
         priority = 9,
         action = cs
     },
@@ -86,7 +89,7 @@ timer = Timer {
     Event { action = chartHeat },
     --SUMMARY DATA MODEL EVENT
     Event {
-        start = 0,
+        --start = 0,
         priority = 9,
         action = function(event)
             print('=========================================================================================================== ')
@@ -113,10 +116,6 @@ timer = Timer {
     --            if (event:getTime() >= 100) then return false end
     --        end },
 }
--------------------------------------------------------------------
--- CHANGE RATES AND RULES
-heatdispersion_rate = 0.99
-funcHeatDisper = function(t, stock) return heatdispersion_rate * stock end
 ---------------------------------------------------------------
 -- Connectors and Flow OPERATORS
 eachHeatGroundCell = Connector {
@@ -128,11 +127,18 @@ neightOfEachHeatGroundCell = Connector {
     attribute = "heat",
     neight = "neightHeat"
 }
+-------------------------------------------------------------------
+-- CHANGE RATES AND RULES
+heatdispersion_rate = 0.99
+--funcHeatDisper = function(t, stock) return heatdispersion_rate * stock end
+funcHeatDisper = function(t, sourceCell, targetCell, neighborSourceCell, neighborTargetCell)
+    return heatdispersion_rate * sourceCell.heat
+end
+---------------------------------------------------------------
+-- Flow OPERATORS
 Flow {
     rule = funcHeatDisper,
     source = eachHeatGroundCell,
     target = neightOfEachHeatGroundCell
 }
---ETAPA 2 FIM
-timer:run(100)
---ssdGlobals = nil
+timer:run(50)

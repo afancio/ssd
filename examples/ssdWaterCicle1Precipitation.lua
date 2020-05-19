@@ -4,6 +4,8 @@
 -- @image ssdWaterCicle1Precipitation.png
 
 import("ssd")
+--dofile("../lua/Flow.lua")
+--dofile("../lua/Connector.lua")
 
 ---------------------------------------------------------------
 -- # SPACE # Creation
@@ -102,8 +104,8 @@ timer = Timer {
     Event { action = chartsummary },
     --SUMMARY DATA MODEL EVENT
     Event {
-        start = 0,
-        --period = 1,
+        --start = 0,
+        ----period = 1,
         priority = 9,
         action = function(event)
             print('=========================================================================================================== ')
@@ -135,7 +137,9 @@ timer = Timer {
 -------------------------------------------------------------------
 -- CHANGE RATES AND RULES
 linear_precipitation_rate = 400
-linear_precipitation_rule = function(t, stock) return linear_precipitation_rate end
+linear_precipitation_rule = function(t, sourceCell, targetCell, neighborSourceCell, neighborTargetCell)
+    return linear_precipitation_rate
+end
 -------------------------------------------------------------------
 -- ConnectorS
 fromEnvironment_nilCnt = Connector {

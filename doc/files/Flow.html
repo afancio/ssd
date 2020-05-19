@@ -86,6 +86,40 @@
 	
 		
 	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
 
 	
 
@@ -142,6 +176,42 @@
 	
 		
 	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+			
+		
+	
 
 	
 		<h1>Types</h1>
@@ -178,6 +248,28 @@
 		
 		
 		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+					<li>
+						<a href="../files/Timer.html">Timer</a>
+					</li>
+				
+			
 		
 	</ul>
 
@@ -230,10 +322,61 @@
 	
 		
 	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
 
 	
 
 	<ul>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
 		
 		
 		
@@ -338,20 +481,41 @@ A Flow operation represents continuous transference of energy between two spatia
 
 <h3>Usage</h3>
 <pre class="example"><code><span class="id">import</span>(<span class="string">"ssd"</span>)
-<span class="id">cell</span> = <span class="function">Cell</span> {
-<span class="id">stock</span> = <span class="number">100</span>
-}
-<span class="id">cell2</span> = <span class="function">Cell</span> {
+<span class="comment">---------------------------------------------------------------</span>
+<span class="comment">-- # SPACE # Creation</span>
+<span class="id">emptyCell</span> = <span class="function">Cell</span> {
 <span class="id">stock</span> = <span class="number">0</span>
 }
+<span class="id">fullCell</span> = <span class="function">Cell</span> {
+<span class="id">stock</span> = <span class="number">100</span>
+}
 <span class="id">cs</span> = <span class="function">CellularSpace</span> {
-<span class="id">xdim</span> = <span class="number">3</span>,
-<span class="id">instance</span> = <span class="id">cell</span>
+<span class="id">xdim</span> = <span class="number">9</span>,
+<span class="id">instance</span> = <span class="id">fullCell</span>
 }
 <span class="id">cs2</span> = <span class="function">CellularSpace</span> {
-<span class="id">xdim</span> = <span class="number">3</span>,
-<span class="id">instance</span> = <span class="id">cell2</span>
+<span class="id">xdim</span> = <span class="number">9</span>,
+<span class="id">instance</span> = <span class="id">emptyCell</span>
 }
+
+<span class="id">mapCs</span> = <span class="function">Map</span> {
+<span class="id">target</span> = <span class="id">cs</span>,
+<span class="id">select</span> = <span class="string">"stock"</span>,
+<span class="id">min</span> = <span class="number">0</span>,
+<span class="id">max</span> = <span class="number">100</span>,
+<span class="id">slices</span> = <span class="number">10</span>,
+<span class="id">color</span> = <span class="string">"Blues"</span>
+}
+<span class="id">mapCs2</span> = <span class="function">Map</span> {
+<span class="id">target</span> = <span class="id">cs2</span>,
+<span class="id">select</span> = <span class="string">"stock"</span>,
+<span class="id">min</span> = <span class="number">0</span>,
+<span class="id">max</span> = <span class="number">100</span>,
+<span class="id">slices</span> = <span class="number">10</span>,
+<span class="id">color</span> = <span class="string">"Blues"</span>
+}
+
+<span class="comment">-- Timer DECLARATION</span>
 <span class="id">timer</span> = <span class="function">Timer</span> {
 <span class="function">Event</span> {
 <span class="id">action</span> = <span class="reserved">function</span>()
@@ -360,7 +524,15 @@ A Flow operation represents continuous transference of energy between two spatia
 <span class="reserved">return</span> <span class="reserved">false</span>
 <span class="reserved">end</span>
 },
+<span class="function">Event</span> { <span class="id">action</span> = <span class="id">mapCs</span> },
+<span class="function">Event</span> { <span class="id">action</span> = <span class="id">mapCs2</span> }
 }
+
+<span class="comment">----------------------------------------------------------------------</span>
+<span class="comment">-- CHANGE RATES AND RULES</span>
+<span class="id">verticalDispersion_rate</span> = <span class="number">0.5</span>
+<span class="id">verticalDispersion_rule</span> = <span class="reserved">function</span>(<span class="id">t</span>, <span class="id">stock</span>) <span class="reserved">return</span> <span class="id">verticalDispersion_rate</span> * <span class="id">stock</span> <span class="reserved">end</span>
+<span class="comment">----------------------------------------------------------------------</span>
 <span class="comment">-- ConnectorS</span>
 <span class="id">cs_localCnt</span> = <span class="function">Connector</span> {
 <span class="id">collection</span> = <span class="id">cs</span>,
@@ -370,15 +542,15 @@ A Flow operation represents continuous transference of energy between two spatia
 <span class="id">collection</span> = <span class="id">cs2</span>,
 <span class="id">attribute</span> = <span class="string">"stock"</span>
 }
+<span class="comment">---------------------------------------------------------------</span>
 <span class="comment">-- Flow OPERATORS</span>
-<span class="id">vertical_local_Flow</span> = <span class="function">Flow</span> {
-<span class="id">rule</span> = <span class="reserved">function</span>(<span class="id">t</span>, <span class="id">stock</span>) <span class="reserved">return</span> <span class="number">0.5</span> * <span class="id">stock</span> <span class="reserved">end</span>,
+<span class="id">local_Flow</span> = <span class="function">Flow</span> {
+<span class="id">rule</span> = <span class="id">verticalDispersion_rule</span>,
 <span class="id">source</span> = <span class="id">cs_localCnt</span>,
-<span class="id">target</span> = <span class="id">cs2_localCnt</span>,
-<span class="id">timer</span> = <span class="id">timer</span>
+<span class="id">target</span> = <span class="id">cs2_localCnt</span>
 }
-<span class="comment">-- MODEL EXECUTION</span>
-<span class="id">timer</span>:<span class="id">run</span>(<span class="number">1</span>)</code></pre>
+<span class="id">timer</span>:<span class="id">run</span>(<span class="number">1</span>)
+<span class="id">ssdGlobals</span> = <span class="reserved">nil</span></code></pre>
 
 
 
@@ -389,237 +561,12 @@ A Flow operation represents continuous transference of energy between two spatia
 						
 						
 
-						
-							<h2 class="function_list">Functions</h2>
-							<table class="function_list">
-							
-								
-									<tr>
-										<td class="name" nowrap><a href="#integrationHeun">integrationHeun</a>&nbsp;
-<td class="summary">Implements the Heun (Euler Second Order) Method to integrate ordinary differential equations.</td>
-									</tr>
-								
-							
-								
-									<tr>
-										<td class="name" nowrap><a href="#integrationRungeKutta">integrationRungeKutta</a>&nbsp;
-<td class="summary">Implements the Runge-Kutta Method (Fourth Order) to integrate ordinary differential equations.</td>
-									</tr>
-								
-							
-								
-									<tr>
-										<td class="name" nowrap><a href="#Timer">Timer</a>&nbsp;
-<td class="summary">Creates a global timer where the flow events will be storeged ___userDefinedTimer.</td>
-									</tr>
-								
-							
 						
 						</table>
 					
 
 					
 
-					
-						
-						<dl class="function">
-							
-									<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-
-
-<dt><h2><a name="integrationHeun">
-
-	</a><strong>integrationHeun</strong>&nbsp;
-
-</h2></dt>
-<dd>
-
-
-<span class="description">
-
-Implements the Heun (Euler Second Order) Method to integrate ordinary differential equations. It is a method of type Predictor-Corrector.<br><br></span>
-
-
-
-
-<!-- Function arguments -->
-  <h3>Arguments</h3>
-<ul><span class="arg">
-
-    <li>
-	  <strong>#1</strong>: The differential equation.
-    </li> 
-    
-  
-    <li>
-	  <strong>#2</strong>: The initial condition that must be satisfied.
-    </li> 
-    
-  
-    <li>
-	  <strong>#3</strong>: The value of 'a' in the interval [a,b[.
-    </li> 
-    
-  
-    <li>
-	  <strong>#4</strong>: The value of 'b' of in the interval [a,b[.
-    </li> 
-    
-  
-    <li>
-	  <strong>#5</strong>: The step of the independent variable.
-    </li> 
-    
-  
-  </span></ul>
-
-
-
-
-
-
-
-<h3>Usage</h3>
-<pre class="example"><code><span class="id">f</span> = <span class="reserved">function</span>(<span class="id">x</span>) <span class="reserved">return</span> <span class="id">x</span>^<span class="number">3</span> <span class="reserved">end</span>
-<span class="id">v</span> = <span class="function">integrationHeun</span>(<span class="id">f</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">3</span>, <span class="number">0.1</span>)</code></pre>
-
-
-
-
-</dd>
-
-
-						    	
-							
-									<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-
-
-<dt><h2><a name="integrationRungeKutta">
-
-	</a><strong>integrationRungeKutta</strong>&nbsp;
-
-</h2></dt>
-<dd>
-
-
-<span class="description">
-
-Implements the Runge-Kutta Method (Fourth Order) to integrate ordinary differential equations.<br><br></span>
-
-
-
-
-<!-- Function arguments -->
-  <h3>Arguments</h3>
-<ul><span class="arg">
-
-    <li>
-	  <strong>#1</strong>: The differential equation.
-    </li> 
-    
-  
-    <li>
-	  <strong>#2</strong>: The initial condition that must be satisfied.
-    </li> 
-    
-  
-    <li>
-	  <strong>#3</strong>: The value of 'a' in the interval [a,b[.
-    </li> 
-    
-  
-    <li>
-	  <strong>#4</strong>: The value of 'b' of in the interval [a,b[.
-    </li> 
-    
-  
-    <li>
-	  <strong>#5</strong>: The step of the independent variable.
-    </li> 
-    
-  
-  </span></ul>
-
-
-
-
-
-
-
-<h3>Usage</h3>
-<pre class="example"><code><span class="id">f</span> = <span class="reserved">function</span>(<span class="id">x</span>) <span class="reserved">return</span> <span class="id">x</span>^<span class="number">3</span> <span class="reserved">end</span>
-<span class="id">v</span> = <span class="function">integrationRungeKutta</span>(<span class="id">f</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">3</span>, <span class="number">0.1</span>)</code></pre>
-
-
-
-
-</dd>
-
-
-						    	
-							
-									<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-
-
-<dt><h2><a name="Timer">
-
-	</a><strong>Timer</strong>&nbsp;
-
-</h2></dt>
-<dd>
-
-
-<span class="description">
-
-Creates a global timer where the flow events will be storeged ___userDefinedTimer.<br><br></span>
-
-
-
-
-<!-- Function arguments -->
-  <h3>Arguments</h3>
-<ul><span class="arg">
-
-    <li>
-	  <strong>#1</strong>: A set of Events.
-    </li> 
-    
-  
-  </span></ul>
-
-
-
-
-
-
-
-<h3>Usage</h3>
-<pre class="example"><code><span class="id">timer</span> = <span class="function">Timer</span>{
-    <span class="function">Event</span>{<span class="id">action</span> = <span class="reserved">function</span>()
-        <span class="id">print</span>(<span class="string">"each time step"</span>)
-    <span class="reserved">end</span>},
-    <span class="function">Event</span>{<span class="id">period</span> = <span class="number">2</span>, <span class="id">action</span> = <span class="reserved">function</span>()
-        <span class="id">print</span>(<span class="string">"each two time steps"</span>)
-    <span class="reserved">end</span>},
-    <span class="function">Event</span>{<span class="id">priority</span> = <span class="string">"high"</span>, <span class="id">period</span> = <span class="number">4</span>, <span class="id">action</span> = <span class="reserved">function</span>()
-        <span class="id">print</span>(<span class="string">"each four time steps"</span>)
-    <span class="reserved">end</span>}
-}
-
-<span class="id">timer</span>:<span class="id">run</span>(<span class="number">10</span>)</code></pre>
-
-
-
-
-</dd>
-
-
-						    	
-							
-						</dl>
 					
 
 					

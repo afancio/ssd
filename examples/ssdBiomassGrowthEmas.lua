@@ -83,6 +83,7 @@ cs = CellularSpace {
 }
 
 map2 = Map {
+    title = "Biomass state in growth model using a Emas map",
     target = cs,
     select = "state2",
     color = { "white", "lightGreen", "lightGreen", "green", "darkGreen", "darkGreen", "blue", "brown", "red", "black" },
@@ -109,10 +110,6 @@ timer = Timer {
     Event { action = map2 },
 }
 ---------------------------------------------------------------
--- CHANGE RATES AND RULES
-growthRate = 0.1
-funcGrouwth = function(t, stock) return growthRate end
----------------------------------------------------------------
 -- ConnectorS
 outOfSystem = Connector {
     collection = nil,
@@ -122,28 +119,17 @@ eachBiomassGroundCell = Connector {
     attribute = "state"
 }
 ---------------------------------------------------------------
+-- CHANGE RATES AND RULES
+growthRate = 0.1
+--funcGrouwth = function(t, stock) return growthRate end
+funcGrouwth = function(t, sourceCell, targetCell, neighborSourceCell, neighborTargetCell)
+    return growthRate
+end
+---------------------------------------------------------------
 -- Flow OPERATORS
 Flow {
     rule = funcGrouwth,
     source = outOfSystem,
     target = eachBiomassGroundCell
 }
-timer:run(100)
---ssdGlobals = nil
---collectgarbage("collect")
---___oldTimerFactory = nil
---___userDefinedTimer = nil --To delet global variable
---timer:clear()
---___userDefinedTimer:clear()
---___userDefinedTimer:reset()
-
---    print("___oldTimerFactory", ___oldTimerFactory, type(___oldTimerFactory))  -- uncomment this line to understand what I am doing
---    print("___userDefinedTimer", ___userDefinedTimer, type(___userDefinedTimer))  -- uncomment this line to understand what I am doing
---print("RESET timer")
---timer:reset()
---___oldTimerFactory:clear()
---print("RESET ___oldTimerFactory")
-
---print("RESET ___userDefinedTimer")
---    print("___oldTimerFactory", ___oldTimerFactory, type(___oldTimerFactory))  -- uncomment this line to understand what I am doing
---    print("___userDefinedTimer", ___userDefinedTimer, type(___userDefinedTimer))  -- uncomment this line to understand what I am doing
+timer:run(50)

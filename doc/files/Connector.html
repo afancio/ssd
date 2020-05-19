@@ -86,6 +86,40 @@
 	
 		
 	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
 
 	
 
@@ -142,6 +176,42 @@
 	
 		
 	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+			
+		
+	
 
 	
 		<h1>Types</h1>
@@ -178,6 +248,28 @@
 		
 		
 		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+					<li>
+						<a href="../files/Timer.html">Timer</a>
+					</li>
+				
+			
 		
 	</ul>
 
@@ -230,10 +322,61 @@
 	
 		
 	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
 
 	
 
 	<ul>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
 		
 		
 		
@@ -337,48 +480,22 @@ A Connector operation represents a target or source of energy, information or ma
 
 
 <h3>Usage</h3>
-<pre class="example"><code><span class="id">import</span>(<span class="string">"ssd"</span>)
-<span class="id">cell</span> = <span class="function">Cell</span> {
-<span class="id">stock</span> = <span class="number">100</span>
-}
-<span class="id">cell2</span> = <span class="function">Cell</span> {
-<span class="id">stock</span> = <span class="number">0</span>
+<pre class="example"><code>
+<span class="id">import</span>(<span class="string">"ssd"</span>)
+<span class="comment">---------------------------------------------------------------</span>
+<span class="comment">-- # SPACE # Creation</span>
+<span class="id">fullCell</span> = <span class="function">Cell</span> {
+   <span class="id">stock</span> = <span class="number">100</span>
 }
 <span class="id">cs</span> = <span class="function">CellularSpace</span> {
-<span class="id">xdim</span> = <span class="number">3</span>,
-<span class="id">instance</span> = <span class="id">cell</span>
-}
-<span class="id">cs2</span> = <span class="function">CellularSpace</span> {
-<span class="id">xdim</span> = <span class="number">3</span>,
-<span class="id">instance</span> = <span class="id">cell2</span>
-}
-<span class="id">timer</span> = <span class="function">Timer</span> {
-<span class="function">Event</span> {
-<span class="id">action</span> = <span class="reserved">function</span>()
-<span class="id">cs</span>:<span class="id">synchronize</span>()
-<span class="id">cs2</span>:<span class="id">synchronize</span>()
-<span class="reserved">return</span> <span class="reserved">false</span>
-<span class="reserved">end</span>
-},
+   <span class="id">xdim</span> = <span class="number">9</span>,
+   <span class="id">instance</span> = <span class="id">fullCell</span>
 }
 <span class="comment">-- ConnectorS</span>
 <span class="id">cs_localCnt</span> = <span class="function">Connector</span> {
-<span class="id">collection</span> = <span class="id">cs</span>,
-<span class="id">attribute</span> = <span class="string">"stock"</span>
-}
-<span class="id">cs2_localCnt</span> = <span class="function">Connector</span> {
-<span class="id">collection</span> = <span class="id">cs2</span>,
-<span class="id">attribute</span> = <span class="string">"stock"</span>
-}
-<span class="comment">-- Flow OPERATORS</span>
-<span class="id">vertical_local_Flow</span> = <span class="function">Flow</span> {
-<span class="id">rule</span> = <span class="reserved">function</span>(<span class="id">t</span>, <span class="id">stock</span>) <span class="reserved">return</span> <span class="number">0.5</span> * <span class="id">stock</span> <span class="reserved">end</span>,
-<span class="id">source</span> = <span class="id">cs_localCnt</span>,
-<span class="id">target</span> = <span class="id">cs2_localCnt</span>,
-<span class="id">timer</span> = <span class="id">timer</span>
-}
-<span class="comment">-- MODEL EXECUTION</span>
-<span class="id">timer</span>:<span class="id">run</span>(<span class="number">1</span>)</code></pre>
+   <span class="id">collection</span> = <span class="id">cs</span>,
+   <span class="id">attribute</span> = <span class="string">"stock"</span>
+}</code></pre>
 
 
 

@@ -11,6 +11,8 @@
 -- @image ssdFireSpreadEmas.bmp
 
 import("ssd")
+--dofile("../lua/Flow.lua")
+--dofile("../lua/Connector.lua")
 
 -- automaton states
 NODATA = 0
@@ -100,15 +102,16 @@ cs:get(35, cs.yMax - 82).heat = 1
 cs:get(19, cs.yMax - 62).state = BURNING
 cs:get(19, cs.yMax - 62).heat = 1
 
-mapCsHeat = Map {
-    title = "Heat Propagation",
-    target = cs,
-    select = "heat_state",
-    value = { "NO_HEAT", "HEAT" },
-    color = { "green", "red" }
-}
+--mapCsHeat = Map {
+--    title = "Heat Propagation",
+--    target = cs,
+--    select = "heat_state",
+--    value = { "NO_HEAT", "HEAT" },
+--    color = { "green", "red" }
+--}
 
 map2 = Map {
+    title = "Biomass state",
     target = cs,
     select = "state2",
     color = { "white", "lightGreen", "lightGreen", "green", "darkGreen", "darkGreen", "blue", "brown", "red", "black" },
@@ -153,7 +156,7 @@ timer = Timer {
     Event { action = map2 },
     --SAVE MAP DURING THE SIMULATION
     --    Event {start = 1,
-    --        period = 1,
+    --        --period = 1,
     --        priority = 8,
     --        action = function(event)
     --            map2:save("SAVES/FS1M1_" .. event:getTime() .. ".bmp")
@@ -162,18 +165,6 @@ timer = Timer {
     --    },
 }
 
-
----------------------------------------------------------------
--- CHANGE RATES AND RULES
--- ETAPA 1
-growthRate = 0.1
-funcGrouwth = function(t, stock) return growthRate end
-
-heatdispersion_rate = 0.99
-funcHeatDisper = function(t, stock) return heatdispersion_rate * stock end
-
-biomassBurnRate = 25
-funcBiomassBurn = function(t, stock) return biomassBurnRate end
 ---------------------------------------------------------------
 -- Connectors and Flow OPERATORS
 outOfSystem = Connector {
@@ -183,14 +174,23 @@ eachBiomassCell_Trajectory = Connector {
     collection = forest,
     attribute = "state"
 }
-
+---------------------------------------------------------------
+-- CHANGE RATES AND RULES
+growthRate = 0.1
+--funcGrouwth = function(t, stock) return growthRate end
+funcGrouwth = function(t, sourceCell, targetCell, neighborSourceCell, neighborTargetCell)
+    return growthRate * targetCell.state
+end
+---------------------------------------------------------------
+-- Flow OPERATORS
 Flow {
     rule = funcGrouwth,
     source = outOfSystem,
     target = eachBiomassCell_Trajectory
 }
-
 --ETAPA 2 - Focal Fire Spread
+---------------------------------------------------------------
+-- Connectors and Flow OPERATORS
 eachHeatGroundCell = Connector {
     collection = cs,
     attribute = "heat"
@@ -200,6 +200,15 @@ neightOfEachHeatGroundCell = Connector {
     attribute = "heat",
     neight = "neighGroundBiomass"
 }
+---------------------------------------------------------------
+-- CHANGE RATES AND RULES
+heatdispersion_rate = 0.99
+--funcHeatDisper = function(t, stock) return heatdispersion_rate * stock end
+funcHeatDisper = function(t, sourceCell, targetCell, neighborSourceCell, neighborTargetCell)
+    return heatdispersion_rate * sourceCell.heat
+end
+---------------------------------------------------------------
+-- Flow OPERATORS
 Flow {
     rule = funcHeatDisper,
     source = eachHeatGroundCell,
@@ -207,15 +216,26 @@ Flow {
 }
 --ETAPA 2 FIM
 --ETAPA 3 - Condicional Focal Fire Spread adn Biomass Burn
+---------------------------------------------------------------
+-- Connectors and Flow OPERATORS
 eachStateFireborderTrajectory = Connector {
     collection = fireBorder,
     attribute = "state"
 }
+---------------------------------------------------------------
+-- CHANGE RATES AND RULES
+biomassBurnRate = 25
+--funcBiomassBurn = function(t, stock) return biomassBurnRate end
+funcBiomassBurn = function(t, sourceCell, targetCell, neighborSourceCell, neighborTargetCell)
+    return biomassBurnRate
+end
+---------------------------------------------------------------
+-- Flow OPERATORS
 Flow {
     rule = funcBiomassBurn,
     source = nil,
     target = eachStateFireborderTrajectory
 }
 
-timer:run(60)
+timer:run(50)
 --ssdGlobals = nil

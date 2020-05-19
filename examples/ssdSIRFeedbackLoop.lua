@@ -1,4 +1,8 @@
 -- @example A simple Susceptible-Infected-Recovered (SIR) model.
+-- We implement a simple disease spread model, commonly known as an SIR
+-- (susceptible-infected-recovered populations) model (Sterman, 2000)
+-- Sterman J. 2000. Business Dynamics: Systems Thinking and Modeling for a Complex World.
+-- Irwin/ McGraw-Hill: New York.
 -- This model represents a given disease that propagates over a fixed population with only three compartments:
 -- susceptible, S (t); infected, I (t), and recovered, R (t).
 -- It starts with a small number of infected that passes the disease to the susceptible ones.
@@ -7,6 +11,8 @@
 -- @image ssdSIRFeedBackLoop.bmp
 
 import("ssd")
+--dofile("../lua/Flow.lua")
+--dofile("../lua/Connector.lua")
 
 ---------------------------------------------------------------
 -- PARAMETER
@@ -49,14 +55,14 @@ timer = Timer {
 ---------------------------------------------------------------
 -- INTEGRATION FUNCTION AND CHANGE RATES
 ---------------------------------------------------------------
-infectionRate = CONTACTS_PER_INFECTION_DAY * CONTAGION_STRENGTH / TOTAL
-funcInfect = function(t, stock, stock2) return infectionRate * stock * stock2 end
 
-recoverRate = 1 / INFECTIOUS_PERIOD
-funcRecover = function(t, stock) return recoverRate * stock end
+
+
 
 R0 = ((CONTACTS_PER_INFECTION_DAY * CONTAGION_STRENGTH / TOTAL) * TOTAL) / (1 / INFECTIOUS_PERIOD)
 
+---------------------------------------------------------------
+-- Connectors
 csCity_local_susceptible = Connector {
     collection = csCity,
     attribute = "susceptible"
@@ -65,10 +71,12 @@ csCity_local_infected = Connector {
     collection = csCity,
     attribute = "infected"
 }
-csCity_local_recovered = Connector {
-    collection = csCity,
-    attribute = "recovered"
-}
+---------------------------------------------------------------
+-- CHANGE RATES AND RULES
+infectionRate = CONTACTS_PER_INFECTION_DAY * CONTAGION_STRENGTH / TOTAL
+funcInfect = function(t, sourceCell, targetCell, neighborSourceCell, neighborTargetCell)
+    return infectionRate * sourceCell.susceptible * targetCell.infected
+end
 ---------------------------------------------------------------
 -- Flow OPERATORS
 infect = Flow {
@@ -78,11 +86,26 @@ infect = Flow {
     feedbackLoop = true
 }
 
+---------------------------------------------------------------
+-- Connectors
+csCity_local_recovered = Connector {
+    collection = csCity,
+    attribute = "recovered"
+}
+---------------------------------------------------------------
+-- CHANGE RATES AND RULES
+recoverRate = 1 / INFECTIOUS_PERIOD
+funcRecover = function(t, sourceCell, targetCell, neighborSourceCell, neighborTargetCell)
+    return recoverRate * sourceCell.infected
+end
+---------------------------------------------------------------
+-- Flow OPERATORS
 recover = Flow {
     rule = funcRecover,
     source = csCity_local_infected,
     target = csCity_local_recovered,
 }
+
 timer:run(100)
 --ssdGlobals = nil
 print("R0",R0)
@@ -154,7 +177,7 @@ chart = Observer {
 }
 
 timer = Timer {
-  Event{time = 1, period = 1, action = function(ev)
+  Event{time = 1, --period = 1, action = function(ev)
     system:execute()
     system:notify(ev:getTime())
   end}

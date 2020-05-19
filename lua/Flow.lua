@@ -21,177 +21,18 @@
 -- of this software and its documentation.
 --
 -------------------------------------------------------------------------------------------
--- dofile("../lua/Connector.lua") --Arquivo deve ser colocado no HOME
+-- dofile("../lua/Connector.lua") --Arquivo deve ser colocado na pasta Lua
 
 DISABLE_CELL_STOCK_LIMIT = true
+--RULE_CELL_LEVEL_BIGGER_THAN_0 = false --notUsed
 
 ssdGlobals = {}
 ssdGlobals.__deltaT = nil
 ssdGlobals.__CollectionSynchonized = nil
 ssdGlobals.__ssdTimer = Timer()
--- Flow use guide
--- Add in terraMe: dofile("Flow_Public_Version_5.lua")
--- Create: Cell, CellularSpace, Trajectory or createNeighborhood;
--- Create: timer = Timer{};
--- Call Flows: NON_Connector_Flow(funcRisingWater, 1, finalTime, 1, trajNascente, "water", nil, scGround, "water", nil, model)
--- Finish the model   end } -- END MODEL
--- Run model: MODEL:run()
+ssdGlobals.__debugMode = false
 
--- Implements the Euler (Euler-Cauchy) Method to integrate ordinary differential equations.
---  @arg df The differential equantion.
---  @arg initCond The initial condition that must be satisfied.
---  @arg a The value of 'a' in the interval [a,b[.
---  @arg b The value of 'b' of in the interval [a,b[.
---  @arg delta The step of the independent variable.
---  @arg initCondSecundary he initial condition of a secundary variabale that must be satisfied.
--- @usage -- DONTRUN
---  source_FlowintegrationEuler(df, initCond, a, b, delta, initCondSecundary).
-local function source_FlowintegrationEuler(df, initCond, a, b, delta, initCondSecundary, initCond3, initCond4)
-    local numInitCondituions = 1
-    if (initCondSecundary ~= nil) then
-        numInitCondituions = numInitCondituions + 1
-    end
-    if (initCond3 ~= nil) then
-        numInitCondituions = numInitCondituions + 1
-    end
-    if (initCond4 ~= nil) then
-        numInitCondituions = numInitCondituions + 1
-    end
-
-    --print ("numInitCondituions = ", numInitCondituions)
-
-    if numInitCondituions == 1 then
-        if type(df) == "function" then
-            local Flow = 0
-            local y = initCond
-            local x = a
-            local bb = b - delta
-            for x = a, bb, delta do
-                Flow = Flow + delta * df(x, y)
-                y = y - delta * df(x, y)
-            end
-            return Flow
-        else
-            --local i = 0
-            local y = initCond
-            local x = a
-            local bb = b - delta
-            local values = {} -- each equation must ne computed from the same "past" value ==> o(n2), onde n é o numero de equações
-            for x = a, bb, delta do
-                for i = 1, #df do
-                    values[i] = df[i](x, y)
-                end
-                for i = 1, #df do
-                    Flow = Flow + delta * values[i]
-                    y[i] = y[i] - delta * values[i]
-                end
-            end
-
-            return Flow
-        end
-    elseif numInitCondituions == 2 then
-        if type(df) == "function" then
-            local Flow = 0
-            local y = initCond
-            local z = initCondSecundary
-            local x = a
-            local bb = b - delta
-            for x = a, bb, delta do
-                Flow = Flow + delta * df(x, y, z)
-                y = y - delta * df(x, y, z)
-            end
-            return Flow
-        else
-            --local i = 0
-            local y = initCond
-            local z = initCondSecundary
-            local x = a
-            local bb = b - delta
-            local values = {} -- each equation must ne computed from the same "past" value ==> o(n2), onde n é o numero de equações
-            for x = a, bb, delta do
-                for i = 1, #df do
-                    values[i] = df[i](x, y, z)
-                end
-                for i = 1, #df do
-                    Flow = Flow + delta * values[i]
-                    y[i] = y[i] - delta * values[i]
-                end
-            end
-
-            return Flow
-        end
-    elseif numInitCondituions == 3 then
-        if type(df) == "function" then
-            local Flow = 0
-            local y = initCond
-            local z = initCondSecundary
-            local w = initCond3
-            local x = a
-            local bb = b - delta
-            for x = a, bb, delta do
-                Flow = Flow + delta * df(x, y, z, w)
-                y = y - delta * df(x, y, z, w)
-            end
-            return Flow
-        else
-            --local i = 0
-            local y = initCond
-            local z = initCondSecundary
-            local w = initCond3
-            local x = a
-            local bb = b - delta
-            local values = {} -- each equation must ne computed from the same "past" value ==> o(n2), onde n é o numero de equações
-            for x = a, bb, delta do
-                for i = 1, #df do
-                    values[i] = df[i](x, y, z, w)
-                end
-                for i = 1, #df do
-                    Flow = Flow + delta * values[i]
-                    y[i] = y[i] - delta * values[i]
-                end
-            end
-
-            return Flow
-        end
-    elseif numInitCondituions == 4 then
-        if type(df) == "function" then
-            local Flow = 0
-            local y = initCond
-            local z = initCondSecundary
-            local w = initCond3
-            local t = initCond4
-            local x = a
-            local bb = b - delta
-            for x = a, bb, delta do
-                Flow = Flow + delta * df(x, y, z, w, t)
-                y = y - delta * df(x, y, z, w, t)
-            end
-            return Flow
-        else
-            --local i = 0
-            local y = initCond
-            local z = initCondSecundary
-            local w = initCond3
-            local t = initCond4
-            local x = a
-            local bb = b - delta
-            local values = {} -- each equation must ne computed from the same "past" value ==> o(n2), onde n é o numero de equações
-            for x = a, bb, delta do
-                for i = 1, #df do
-                    values[i] = df[i](x, y, z, w, t)
-                end
-                for i = 1, #df do
-                    Flow = Flow + delta * values[i]
-                    y[i] = y[i] - delta * values[i]
-                end
-            end
-
-            return Flow
-        end
-    end
-end
-
---[[ --TODO
+--[[
 -- Implements the Heun (Euler Second Order) Method to integrate ordinary differential equations.
 -- It is a method of type Predictor-Corrector.
 -- @arg df The differential equation.
@@ -202,43 +43,46 @@ end
 -- @usage f = function(x) return x^3 end
 -- v = integrationHeun(f, 0, 0, 3, 0.1)
 function integrationHeun(df, initCond, a, b, delta)
-	if type(df) == "function" then
-		local y = initCond
-		local y1
-		local val
-		local bb = b - delta
-		for x = a, bb, delta do
-			val = df(x, y)
-			y1 = y + delta * val
-			y = y + 0.5 * delta * (val + df(x + delta, y1))
-		end
+    if type(df) == "function" then
+        local y = initCond
+        local y1
+        local val
+        local bb = b - delta
+        for x = a, bb, delta do
+            val = df(x, y)
+            y1 = y + delta * val
+            y = y + 0.5 * delta * (val + df(x + delta, y1))
+        end
 
-		return y
-	else
-		local y = initCond
-		local bb = b - delta
-		local sizeDF = #df
-		for x = a, bb, delta do
-			local val = {}
-			local y1 = {}
-			for i = 1, sizeDF do
-				val[i] = df[i](x, y)
-				y1[i] = y[i] + delta * val[i]
-			end
+        return y
+    else
+        local y = initCond
+        local bb = b - delta
+        local sizeDF = #df
+        for x = a, bb, delta do
+            local val = {}
+            local y1 = {}
+            for i = 1, sizeDF do
+                val[i] = df[i](x, y)
+                y1[i] = y[i] + delta * val[i]
+            end
 
-			local values = {}
-			for i = 1, sizeDF do
-				values[i] = df[i](x + delta, y1)
-			end
+            local values = {}
+            for i = 1, sizeDF do
+                values[i] = df[i](x + delta, y1)
+            end
 
-			for i = 1, sizeDF do
-				y[i] = y[i] + 0.5 * delta * (val[i] + values[i])
-			end
-		end
+            for i = 1, sizeDF do
+                y[i] = y[i] + 0.5 * delta * (val[i] + values[i])
+            end
+        end
 
-		return y
-	end
+        return y
+    end
 end
+]]
+
+--[[
 
 -- Implements the Runge-Kutta Method (Fourth Order) to integrate ordinary differential equations.
 -- @arg df The differential equation.
@@ -249,59 +93,611 @@ end
 -- @usage f = function(x) return x^3 end
 -- v = integrationRungeKutta(f, 0, 0, 3, 0.1)
 function integrationRungeKutta(df, initCond, a, b, delta)
-	if type(df) == "function" then
-		local y = initCond
-		local y1
-		local y2
-		local y3
-		local y4
-		local bb = b - delta
-		local midDelta = 0.5 * delta
-		for x = a, bb, delta do
-			y1 = df(x, y)
-			y2 = df(x + midDelta, y + midDelta * y1)
-			y3 = df(x + midDelta, y + midDelta * y2)
-			y4 = df(x + delta, y + delta* y3)
-			y = y + delta * (y1 + 2 * y2 + 2 * y3 + y4) / 6
-		end
+    if type(df) == "function" then
+        local y = initCond
+        local y1
+        local y2
+        local y3
+        local y4
+        local bb = b - delta
+        local midDelta = 0.5 * delta
+        for x = a, bb, delta do
+            y1 = df(x, y)
+            y2 = df(x + midDelta, y + midDelta * y1)
+            y3 = df(x + midDelta, y + midDelta * y2)
+            y4 = df(x + delta, y + delta * y3)
+            y = y + delta * (y1 + 2 * y2 + 2 * y3 + y4) / 6
+        end
 
-		return y
-	else
-		local y = initCond
-		local y1
-		local y2
-		local y3
-		local y4
-		local bb = b - delta
-		local midDelta = 0.5 * delta
-		local sizeDF = #df
-		for x = a, bb, delta do
-			local yTemp = {}
-			local values = {}
-			for i = 1, sizeDF do
-				yTemp[i] = y[i]
-			end
+        return y
+    else
+        local y = initCond
+        local y1
+        local y2
+        local y3
+        local y4
+        local bb = b - delta
+        local midDelta = 0.5 * delta
+        local sizeDF = #df
+        for x = a, bb, delta do
+            local yTemp = {}
+            local values = {}
+            for i = 1, sizeDF do
+                yTemp[i] = y[i]
+            end
 
-			for i = 1, sizeDF do
-				y1 = df[i](x, y)
-				yTemp[i] = y[i] + midDelta * y1
-				y2 = df[i](x + midDelta, yTemp)
-				yTemp[i] = y[i] + midDelta * y2
-				y3 = df[i](x + midDelta, yTemp)
-				yTemp[i] = y[i] + delta * y3
-				y4 = df[i](x + delta, yTemp)
-				values[i] = y[i] + delta * (y1 + 2 * y2 + 2 * y3 + y4) / 6
-			end
+            for i = 1, sizeDF do
+                y1 = df[i](x, y)
+                yTemp[i] = y[i] + midDelta * y1
+                y2 = df[i](x + midDelta, yTemp)
+                yTemp[i] = y[i] + midDelta * y2
+                y3 = df[i](x + midDelta, yTemp)
+                yTemp[i] = y[i] + delta * y3
+                y4 = df[i](x + delta, yTemp)
+                values[i] = y[i] + delta * (y1 + 2 * y2 + 2 * y3 + y4) / 6
+            end
 
-			for i = 1, sizeDF do
-				y[i] = values[i]
-			end
-		end
+            for i = 1, sizeDF do
+                y[i] = values[i]
+            end
+        end
 
-		return y
-	end
-end]]
+        return y
+    end
+end
+]]
 
+-- Implements the Euler (Euler-Cauchy) Method to integrate ordinary differential equations.
+--  @arg df The differential equantion.
+--  @arg initCond The initial condition that must be satisfied.
+--  @arg a The value of 'a' in the interval [a,b[.
+--  @arg b The value of 'b' of in the interval [a,b[.
+--  @arg delta The step of the independent variable.
+--  @arg initCondSecundary he initial condition of a secundary variabale that must be satisfied.
+-- @usage -- DONTRUN
+--  source_FlowintegrationEuler(df, initCond, a, b, delta, initCondSecundary).
+--cell.past, data.target.collection.past)--, neighbor.past
+local function newFlowintegrationEulerStep(df, a, b, delta, sourceCell, targetCell, neighborSourceCell, neighborTargetCell)
+    if type(df) == "function" then
+        local Flow = 0
+        --local y = initCond
+        local x = a -- = data.eventTime,
+        local bb = b - delta -- data.eventTime + data.delta  - data.delta = data.eventTime
+        -- o controle da granularidade fica no evento que vai repetir para cada intervalo
+        -- por isso que a frequencia estava baixa... pois a cada intervalo o valor era * 0.0125/64
+        -- logo, na chama do flow eu já paticionei o cálculo em data.eventTime/data.delta computações
+        for x = a, bb, delta do -- sempre uma única vez logo não precisa do att Y
+            Flow = Flow + delta * df(x, sourceCell, targetCell, neighborSourceCell, neighborTargetCell)
+            --não precisa
+            --y = y - delta * df(x, cellPast, cellTargetPast, neighborPast, centralNeightCellPast)
+        end
+        return Flow
+    else
+        --local i = 0
+        local y = initCond
+        --local z = initCondSecundary
+        --local w = initCond3
+        local x = a
+        local bb = b - delta
+        local values = {} -- each equation must ne computed from the same "past" value ==> o(n2), onde n é o numero de equações
+        for x = a, bb, delta do
+            for i = 1, #df do
+                values[i] = df[i](x, sourceCell, targetCell, neighborSourceCell, neighborTargetCell)
+            end
+            for i = 1, #df do
+                Flow = Flow + delta * values[i]
+                y[i] = y[i] - delta * values[i]
+            end
+        end
+
+        return Flow
+    end
+end
+
+--SEMANTICS (LOCAL -> LOCAL)
+--forEachCell(source, function(cell)
+--     targetCell = target[cel.x, cell.y]
+--     if (targetCell ~=nil) then
+--          change = flowIntegration (df, cell.past,
+--           targetCell.past)
+--          source.cell -=  change
+--          targetCell += change
+--     end
+--end)
+local function LocalToLocal(data)
+    local findId0 = false; --Database collection corretion
+
+    forEachCell(data.source.collection, function(cell)
+
+        local cellTargetPastId = tonumber(cell:getId())
+        if cellTargetPastId == 0 or findId0 then --Database collection corretion --TODO based on dcoumentation
+            findId0, cellTargetPastId = true, cellTargetPastId + 1
+        end
+
+        if (data.target.collection.cells[cellTargetPastId] ~= nil) then
+            --Change is computed from the current eventTime to (eventTime + delta) to garanty de value synchronize
+            --Events ocur for each delta... one single euler step must be calculated
+            --(df, a, b, delta, sourceCell, targetCell, neighborSourceCell, neighborTargetCell)
+            local change = newFlowintegrationEulerStep(data.rule, data.eventTime, data.eventTime + data.delta, data.delta,
+                cell.past, data.target.collection.cells[cellTargetPastId].past, nil, nil)
+
+            cell[data.source.attribute] = cell[data.source.attribute] - change
+            data.target.collection.cells[cellTargetPastId][data.target.attribute] =
+            data.target.collection.cells[cellTargetPastId][data.target.attribute] + change
+        end
+    end)
+end
+
+--SEMANTICS (LOCAL -> FOCAL)
+--forEachCell(source, function(cell)
+--     targetCell = target[cel.x, cell.y]
+--     if (targetCell ~=nil) then
+--         change = flowIntegration (df, cell.past,
+--         targetCell.past)
+--         source.cell -=  change
+--         -- weighted arithmetic mean
+--         forEachNeighbor(
+--targetCell.neighborhood,
+--function(_, weight)
+--                 weightNeighborhoodDestiny +=
+--                  weight
+--         end)
+--         forEachNeighbor(
+--              targetCell.neighborhood,
+--              function(neighbor, weight)
+--     	     targetCell += change * weight
+--                  /weightNeighborhoodDestiny
+--         end)
+--     end
+--end)
+local function LocalToFocal(data)
+    local findId0 = false; --Database collection corretion
+
+    forEachCell(data.source.collection, function(cell)
+
+        local cellTargetPastId = tonumber(cell:getId())
+        if cellTargetPastId == 0 or findId0 then --Database collection corretion --TODO based on dcoumentation
+            findId0, cellTargetPastId = true, cellTargetPastId + 1
+        end
+
+        if (data.target.collection.cells[cellTargetPastId] ~= nil) then
+            --Change is computed from the current eventTime to (eventTime + delta) to garanty de value synchronize
+            --Events ocur for each delta... one single euler step must be calculated
+            --(df, a, b, delta, sourceCell, targetCell, neighborSourceCell, neighborTargetCell)
+            local change = newFlowintegrationEulerStep(data.rule, data.eventTime, data.eventTime + data.delta, data.delta,
+                cell.past, data.target.collection.cells[cellTargetPastId].past, nil, nil)
+
+            cell[data.source.attribute] = cell[data.source.attribute] - change
+
+            local sizeNeighborhoodDestiny = #data.target.neight
+            if sizeNeighborhoodDestiny ~= 0 then
+                local sumWeightNeighborhoodDestiny = 0
+                forEachNeighbor(data.target.collection.cells[cellTargetPastId], data.target.neight, function(_, weight)
+                    sumWeightNeighborhoodDestiny = sumWeightNeighborhoodDestiny + weight
+                end)
+                forEachNeighbor(data.target.collection.cells[cellTargetPastId], data.target.neight,
+                    function(neighbor, weight)
+                        neighbor[data.target.attribute] = neighbor[data.target.attribute]
+                                + change * weight / sumWeightNeighborhoodDestiny
+                    end)
+            end
+        end
+    end)
+end
+
+
+--SEMANTICS (LOCAL -> ZONAL)
+--forEachCell(target, function(cell)
+--     sourceCell = source[cel.x, cell.y]
+--     if (sourceCell ~= nil) then
+--          	change = flowIntegration (df, sourceCell.past,
+--             cell.past)
+--          	sourceCell -=  change
+--          	cell  += change
+--     end
+--end)
+local function LocalToZonal(data)
+
+    local findId0 = false; --Database collection corretion
+
+    forEachCell(data.target.collection, function(cell) --danger (inverted souce and target)
+
+        local cellTargetPastId = tonumber(cell:getId())
+        if cellTargetPastId == 0 or findId0 then --Database collection corretion --TODO based on dcoumentation
+            findId0, cellTargetPastId = true, cellTargetPastId + 1
+        end
+
+        if (data.source.collection.cells[cellTargetPastId] ~= nil) then
+            --Change is computed from the current eventTime to (eventTime + delta) to garanty de value synchronize
+            --Events ocur for each delta... one single euler step must be calculated
+            --(df, a, b, delta, sourceCell, targetCell, neighborSourceCell, neighborTargetCell)
+            local change = newFlowintegrationEulerStep(data.rule, data.eventTime, data.eventTime + data.delta, data.delta,
+                data.source.collection.cells[cellTargetPastId].past, cell.past, nil, nil) -- (inverted souce and target)
+
+            data.source.collection.cells[cellTargetPastId][data.target.attribute] =
+            data.source.collection.cells[cellTargetPastId][data.target.attribute]
+                    - change --danger (inverted source and target)
+
+            cell[data.target.attribute] = cell[data.target.attribute] + change --danger (inverted souce and target)
+        end
+    end)
+end
+
+--SEMANTICS (FOCAL -> LOCAL)
+--forEachCell(source, function(cell)
+--     targetCell = target[cel.x, cell.y]
+--     if (targetCell ~= nil) then
+--        forEachNeighbor(cell.neighborhood,   	function(neighbor, weight)
+--         	    change = flowIntegration (df, cell.past,
+--                 targetCell.past)
+--                 cell -= change * weight
+--                 sumNeightChange += change *
+--                 weight
+--         end)
+--         targetCell += sumNeightChange
+--     end
+--end)
+local function FocalToLocal(data)
+    local findId0 = false; --Database collection corretion
+
+    forEachCell(data.source.collection, function(cell)
+
+        local cellTargetPastId = tonumber(cell:getId())
+        if cellTargetPastId == 0 or findId0 then --Database collection corretion --TODO based on dcoumentation
+            findId0, cellTargetPastId = true, cellTargetPastId + 1
+        end
+
+        if (data.target.collection.cells[cellTargetPastId] ~= nil) then
+            local sumNeightChange = 0
+            forEachNeighbor(cell, data.source.neight, function(neighbor, weight)
+
+                --                local neighborTargetPastId = tonumber(cell:getId())
+                --                if neighborTargetPastId == 0 or findId0 then --Database collection corretion --TODO based on dcoumentation
+                --                    findId0, neighborTargetPastId = true, neighborTargetPastId + 1
+                --                end
+
+                --Change is computed from the current eventTime to (eventTime + delta) to garanty de value synchronize
+                --Events ocur for each delta... one single euler step must be calculated
+                --(df, a, b, delta, sourceCell, targetCell, neighborSourceCell, neighborTargetCell)
+                local change = newFlowintegrationEulerStep(data.rule, data.eventTime, data.eventTime + data.delta, data.delta,
+                    cell.past, data.target.collection.cells[cellTargetPastId].past,
+                    neighbor.past, nil) --data.target.collection.cells[neighborTargetPastId].past) --???
+
+                neighbor[data.source.attribute] = neighbor[data.source.attribute] - change * weight
+                sumNeightChange = sumNeightChange + change * weight
+            end)
+
+            data.target.collection.cells[cellTargetPastId][data.target.attribute] =
+            data.target.collection.cells[cellTargetPastId][data.target.attribute] + sumNeightChange
+        end
+    end)
+end
+
+--SEMANTICS (FOCAL -> FOCAL)
+--forEachCell(source, function(cell)
+--     targetCell = target[cel.x, cell.y]
+--     if (targetCell ~= nil) then
+--          forEachNeighbor(cell.neighborhood,
+--              function(neighbor, weight)
+--                  change = flowIntegration (df, cell.past,
+--                  targetCell.past)
+--                   cell -= change * weight
+--                   sumNeightChange += change * weight
+--         end)
+--          -- weighted arithmetic mean
+--         forEachNeighbor( targetCell.neighborhood,
+--             function(_, weight))
+--                 weightNeighborhoodDestiny += weight
+--         end)
+--         forEachNeighbor(targetCell.neighborhood,
+--              function(neighbor, weight)
+--                   targetCell += sumNeightChange * weight
+--                   /weightNeighborhoodDestiny
+--          end)
+--     end
+--end)
+local function FocalToFocal(data)
+    local findId0 = false; --Database collection corretion
+
+    forEachCell(data.source.collection, function(cell)
+
+        local cellTargetPastId = tonumber(cell:getId())
+        if cellTargetPastId == 0 or findId0 then --Database collection corretion --TODO based on dcoumentation
+            findId0, cellTargetPastId = true, cellTargetPastId + 1
+        end
+
+        if (data.target.collection.cells[cellTargetPastId] ~= nil) then
+            local sumNeightChange = 0
+            forEachNeighbor(cell, data.source.neight, function(neighbor, weight)
+
+                local neighborTargetPastId = tonumber(cell:getId())
+                if neighborTargetPastId == 0 or findId0 then --Database collection corretion --TODO based on dcoumentation
+                    findId0, neighborTargetPastId = true, neighborTargetPastId + 1
+                end
+                --Change is computed from the current eventTime to (eventTime + delta) to garanty de value synchronize
+                --Events ocur for each delta... one single euler step must be calculated
+                --(df, a, b, delta, sourceCell, targetCell, neighborSourceCell, neighborTargetCell)
+                local change = newFlowintegrationEulerStep(data.rule, data.eventTime, data.eventTime + data.delta, data.delta,
+                    cell.past, data.target.collection.cells[cellTargetPastId].past,
+                    neighbor.past, data.target.collection.cells[neighborTargetPastId].past)
+
+                neighbor[data.source.attribute] = neighbor[data.source.attribute] - change * weight
+                sumNeightChange = sumNeightChange + change * weight
+            end)
+
+            local sizeNeighborhoodDestiny = #data.target.neight
+            if sizeNeighborhoodDestiny ~= 0 then
+                local sumWeightNeighborhoodDestiny = 0
+                forEachNeighbor(data.target.collection.cells[cellTargetPastId], data.target.neight, function(_, weight)
+                    sumWeightNeighborhoodDestiny = sumWeightNeighborhoodDestiny + weight
+                end)
+                forEachNeighbor(data.target.collection.cells[cellTargetPastId], data.target.neight,
+                    function(neighbor, weight)
+                        neighbor[data.target.attribute] = neighbor[data.target.attribute]
+                                + sumNeightChange * weight / sumWeightNeighborhoodDestiny
+                    end)
+            end
+        end
+    end)
+end
+
+--SEMANTICS (FOCAL -> ZONAL)
+--forEachCell(target, function(cell)
+--     sourceCell = source[cel.x, cell.y]
+--     if (sourceCell ~= nil) then
+--          forEachNeighbor(sourceCell.neihborhood,
+--              function(neighbor, weight))
+--                  change = flowIntegration (df,
+--                  sourceCell.past, cell.past)
+--                  sourceCell -= change * weight
+--                  sumNeightChange += change * weight
+--          end)
+--          cell += sumNeightChange
+--    end
+--end
+local function FocalToZonal(data)
+    local findId0 = false; --Database collection corretion
+
+    forEachCell(data.target.collection, function(cell)
+
+        local cellTargetPastId = tonumber(cell:getId()) --TODO X AND Y
+        if cellTargetPastId == 0 or findId0 then --Database collection corretion --TODO based on dcoumentation
+            findId0, cellTargetPastId = true, cellTargetPastId + 1
+        end
+
+        if (data.source.collection.cells[cellTargetPastId] ~= nil) then
+            local sumNeightChange = 0
+            forEachNeighbor(data.source.collection.cells[cellTargetPastId], data.source.neight, function(neighbor, weight)
+
+                --                local neighborTargetPastId = tonumber(cell:getId())
+                --                if neighborTargetPastId == 0 or findId0 then --Database collection corretion --TODO based on dcoumentation
+                --                    findId0, neighborTargetPastId = true, neighborTargetPastId + 1
+                --                end
+
+                --Change is computed from the current eventTime to (eventTime + delta) to garanty de value synchronize
+                --Events ocur for each delta... one single euler step must be calculated
+                --(df, a, b, delta, sourceCell, targetCell, neighborSourceCell, neighborTargetCell)
+                local change = newFlowintegrationEulerStep(data.rule, data.eventTime, data.eventTime + data.delta, data.delta,
+                    data.source.collection.cells[cellTargetPastId].past, cell.past,
+                    neighbor.past, nil)
+
+                neighbor[data.source.attribute] = neighbor[data.source.attribute] - change * weight
+                sumNeightChange = sumNeightChange + change * weight
+            end)
+
+            cell[data.target.attribute] = cell[data.target.attribute] + sumNeightChange
+        end
+    end)
+end
+
+--SEMANTICS (ZONAL -> LOCAL)
+--forEachCell(source, function(cell)
+--     targetCell = target[cel.x, cell.y]
+--     if (targetCell ~=nil) then
+--          change = flowIntegration (df, cell.past,
+--          targetCell.past)
+--          source.cell -=  change
+--          targetCell += change
+--     end
+--end)
+local function ZonalToLocal(data)
+    local findId0 = false; --Database collection corretion
+
+    forEachCell(data.source.collection, function(cell)
+
+        local cellTargetPastId = tonumber(cell:getId())
+        if cellTargetPastId == 0 or findId0 then --Database collection corretion --TODO based on dcoumentation
+            findId0, cellTargetPastId = true, cellTargetPastId + 1
+        end
+
+        if (data.target.collection.cells[cellTargetPastId] ~= nil) then
+            --Change is computed from the current eventTime to (eventTime + delta) to garanty de value synchronize
+            --Events ocur for each delta... one single euler step must be calculated
+            --(df, a, b, delta, sourceCell, targetCell, neighborSourceCell, neighborTargetCell)
+            local change = newFlowintegrationEulerStep(data.rule, data.eventTime, data.eventTime + data.delta, data.delta,
+                cell.past, data.target.collection.cells[cellTargetPastId].past, nil, nil)
+
+            cell[data.source.attribute] = cell[data.source.attribute] - change
+            data.target.collection.cells[cellTargetPastId][data.target.attribute] =
+            data.target.collection.cells[cellTargetPastId][data.target.attribute] + change
+        end
+    end)
+end
+
+--SEMANTICS (ZONAL -> FOCAL)
+--forEachCell(source, function(cell)
+--     targetCell = target[cel.x, cell.y]
+--     if (targetCell ~=nil) then
+--          change = flowIntegration (df, cell.past,
+--          targetCell.past)
+--          source.cell -=  change
+--         -- weighted arithmetic mean
+--         forEachNeighbor(targetCell.neighborhood,
+--              function(_, weight))
+--                 weightNeighborhoodDestiny +=
+--                 weight
+--         end)
+--         forEachNeighbor(targetCell.neighborhood,
+--              function(neighbor, weight))
+--                  targetCell += change * weight
+--                  /weightNeighborhoodDestiny
+--          end)
+--     end
+--end)
+local function ZonalToFocal(data)
+    local findId0 = false; --Database collection corretion
+
+    forEachCell(data.source.collection, function(cell)
+
+        local cellTargetPastId = tonumber(cell:getId())
+        if cellTargetPastId == 0 or findId0 then --Database collection corretion --TODO based on dcoumentation
+            findId0, cellTargetPastId = true, cellTargetPastId + 1
+        end
+
+        if (data.target.collection.cells[cellTargetPastId] ~= nil) then
+            --Change is computed from the current eventTime to (eventTime + delta) to garanty de value synchronize
+            --Events ocur for each delta... one single euler step must be calculated
+            --(df, a, b, delta, sourceCell, targetCell, neighborSourceCell, neighborTargetCell)
+            local change = newFlowintegrationEulerStep(data.rule, data.eventTime, data.eventTime + data.delta, data.delta,
+                cell.past, data.target.collection.cells[cellTargetPastId].past, nil, nil)
+
+            cell[data.source.attribute] = cell[data.source.attribute] - change
+
+
+            local sizeNeighborhoodDestiny = #data.target.neight
+            if sizeNeighborhoodDestiny ~= 0 then
+                local sumWeightNeighborhoodDestiny = 0
+                forEachNeighbor(data.target.collection.cells[cellTargetPastId], data.target.neight, function(_, weight)
+                    sumWeightNeighborhoodDestiny = sumWeightNeighborhoodDestiny + weight
+                end)
+                forEachNeighbor(data.target.collection.cells[cellTargetPastId], data.target.neight,
+                    function(neighbor, weight)
+                        neighbor[data.target.attribute] = neighbor[data.target.attribute]
+                                + change * weight / sumWeightNeighborhoodDestiny
+                    end)
+            end
+        end
+    end)
+end
+
+--SEMANTICS (ZONAL -> ZONAL)
+--target.begin()
+--forEachCell(source,  function(cell)
+--     if (sourceCell ~=nil and targetCell ~=nil) then
+--          change = flowIntegration (df, cell.past,
+--          targetCell.past)
+--          source.cell -=  change
+--          targetCell += change
+--     else
+--           return false
+--     end
+--     targetCell = target.next();
+--end)
+local function ZonalToZonal(data)
+
+    local cellTargetPastId = 1
+    targetCell = data.target.collection.cells[cellTargetPastId]
+
+    forEachCell(data.source.collection, function(cell)
+
+        if (cell ~= nil and data.target.collection.cells[cellTargetPastId] ~= nil) then
+            --Change is computed from the current eventTime to (eventTime + delta) to garanty de value synchronize
+            --Events ocur for each delta... one single euler step must be calculated
+            --(df, a, b, delta, sourceCell, targetCell, neighborSourceCell, neighborTargetCell)
+            local change = newFlowintegrationEulerStep(data.rule, data.eventTime, data.eventTime + data.delta, data.delta,
+                cell.past, data.target.collection.cells[cellTargetPastId].past, nil, nil)
+
+            cell[data.source.attribute] = cell[data.source.attribute] - change
+            data.target.collection.cells[cellTargetPastId][data.target.attribute] =
+            data.target.collection.cells[cellTargetPastId][data.target.attribute] + change
+        else
+            return false
+        end
+
+        cellTargetPastId = cellTargetPastId + 1
+        targetCell = data.target.collection.cells[cellTargetPastId]
+    end)
+end
+
+
+local function NilToLocal(data)
+
+    forEachCell(data.target.collection, function(cell)
+        --Change is computed from the current eventTime to (eventTime + delta) to garanty de value synchronize
+        --Events ocur for each delta... one single euler step must be calculated
+        -- (df, a, b, delta, sourceCell, targetCell, neighborSourceCell, neighborTargetCell)
+        local change = newFlowintegrationEulerStep(data.rule, data.eventTime, data.eventTime + data.delta, data.delta,
+            nil, cell.past, nil, nil)
+        cell[data.target.attribute] = cell[data.target.attribute] + change
+    end)
+end
+
+local function NilToFocal(data)
+
+    forEachCell(data.target.collection, function(cell)
+
+        forEachNeighbor(cell, data.target.neight, function(neighbor, weight)
+            --Change is computed from the current eventTime to (eventTime + delta) to garanty de value synchronize
+            --Events ocur for each delta... one single euler step must be calculated
+            --(df, a, b, delta, sourceCell, targetCell, neighborSourceCell, neighborTargetCell)
+            local change = newFlowintegrationEulerStep(data.rule, data.eventTime, data.eventTime + data.delta, data.delta,
+                nil, cell.past, nil, neighbor.past)
+            neighbor[data.target.attribute] = neighbor[data.target.attribute] + change * weight
+        end)
+    end)
+end
+
+local function NilToZonal(data)
+
+    forEachCell(data.target.collection, function(cell)
+        --Change is computed from the current eventTime to (eventTime + delta) to garanty de value synchronize
+        --Events ocur for each delta... one single euler step must be calculated
+        --(df, a, b, delta, sourceCell, targetCell, neighborSourceCell, neighborTargetCell)
+        local change = newFlowintegrationEulerStep(data.rule, data.eventTime, data.eventTime + data.delta, data.delta,
+            nil, cell.past, nil, nil)
+        cell[data.target.attribute] = cell[data.target.attribute] + change
+    end)
+end
+
+
+local function LocalToNil(data)
+    forEachCell(data.source.collection, function(cell)
+        --Change is computed from the current eventTime to (eventTime + delta) to garanty de value synchronize
+        --Events ocur for each delta... one single euler step must be calculated
+        --(df, a, b, delta, sourceCell, targetCell, neighborSourceCell, neighborTargetCell)
+        local change = newFlowintegrationEulerStep(data.rule, data.eventTime, data.eventTime + data.delta, data.delta,
+            cell.past, nil, nil, nil)
+        cell[data.source.attribute] = cell[data.source.attribute] - change
+    end)
+end
+
+local function FocalToNil(data)
+    forEachCell(data.source.collection, function(cell)
+        forEachNeighbor(cell, data.source.neight, function(neighbor, weight)
+            --Change is computed from the current eventTime to (eventTime + delta) to garanty de value synchronize
+            --Events ocur for each delta... one single euler step must be calculated
+            --(df, a, b, delta, sourceCell, targetCell, neighborSourceCell, neighborTargetCell)
+            local change = newFlowintegrationEulerStep(data.rule, data.eventTime, data.eventTime + data.delta, data.delta,
+                cell.past, nil, neighbor.past, nil)
+
+            neighbor[data.source.attribute] = neighbor[data.source.attribute] - change * weight
+        end)
+    end)
+end
+
+local function ZonalToNil(data)
+    forEachCell(data.source.collection, function(cell)
+        --Change is computed from the current eventTime to (eventTime + delta) to garanty de value synchronize
+        --Events ocur for each delta... one single euler step must be calculated
+        --(df, a, b, delta, sourceCell, targetCell, neighborSourceCell, neighborTargetCell)
+        local change = newFlowintegrationEulerStep(data.rule, data.eventTime, data.eventTime + data.delta, data.delta,
+            cell.past, nil, nil, nil)
+
+        cell[data.source.attribute] = cell[data.source.attribute] - change
+    end)
+end
+
+-- TODO - Rewrite based in the new implementation
 -- Flow Execution or Behavioral rules (BehavioralRules) are executed, that is,
 -- TerraME iterates over all cells of the involved collections, applying the differential
 -- equations (Flows) defined by the modeler that receive the temporary values as
@@ -331,380 +727,75 @@ end]]
 --  Attribute2: String - Name of the attribute of the cells contained in the collections of the energy Flow.
 --  Neight2: Neighborhood - Neighborhood name defined over the recipient collection of the energy Flow. Optional.
 -- @usage import("ssd")
--- BehavioralRule(1, 10, 1, nil, nil, nil, nil, nil, nil, nil, nil)
-local function BehavioralRule(f, time, delta,
-iterator1, iterator1_stock, iterator1_stock2, neight1,
-iterator2, iterator2_stock, iterator2_stock2, neight2,
-feedbackLoop)
-    -- LOCAL OR ZONAL - Each cell in a collection transfers part of its attribute stock at
-    -- a rate defined by f (t, y) to the spatially corresponding cell attribute of another collection.
-    -- Example: precipitation of cloud water to ground.
-
-    if (iterator1 ~= nil and iterator2 ~= nil) then
-
-        --
-        -- BLOCO BehavioralRule
-        --
-        if neight1 == nil and neight2 == nil then
-            local findId0 = false;
-            forEachCell(iterator1, function(cell)
-                --print('::cell:getId()', cell:getId())
-                --print('::tonumber(cell:getId())', tonumber(cell:getId()))
-                local UpdPointer = tonumber(cell:getId()) -- +1 --UPDATE DO CABEÇA DE BOI
-                if UpdPointer == 0 or findId0 then
-                    findId0 = true
-                    UpdPointer = UpdPointer + 1
-                end
-                local initCond = cell.past[iterator1_stock]
-                local a = time
-                local b = time + delta
-                local tempFlow
-                --print("feedbackLoop", feedbackLoop)
-                if iterator1_stock2 ~= nil then
-                    --print("iterator1_stock2 ~= nil")
-                    --local initCond2 = cell.past[iterator1_stock2]
-                    --tempFlow = source_FlowintegrationEuler(f, initCond, a, b, delta, initCond2)
-                    if feedbackLoop == true then
-                        --print("iterator1_stock2 ~= nil AND feedbackLoop == true")
-                        if iterator2_stock ~= nil then
-                            --print("cell", cell)
-                            --print("cell.past[iterator1_stock2]", cell.past[iterator1_stock2])
-                            local initCond2 = cell.past[iterator1_stock2]
-                            --print("iterator2.cells[UpdPointer].past[iterator2_stock]", iterator2.cells[UpdPointer].past[iterator2_stock])
-                            local initCondIterator2_stock = iterator2.cells[UpdPointer].past[iterator2_stock]
-                            if iterator2_stock2 ~= nil then
-                                --print("iterator2.cells[UpdPointer].past[iterator2_stock2]", iterator2.cells[UpdPointer].past[iterator2_stock2])
-                                local initCondIterator2_stock2 = iterator2.cells[UpdPointer].past[iterator2_stock2]
-                                tempFlow = source_FlowintegrationEuler(f, initCond, a, b, delta, initCond2, initCondIterator2_stock, initCondIterator2_stock2)
-                            else
-                                tempFlow = source_FlowintegrationEuler(f, initCond, a, b, delta, initCond2, initCondIterator2_stock)
-                            end
-                        else
-                            customError("FeedbackLoop can't be calculate without a attribute. Add at least on attirbute to target.")
-                        end
-                    else
-                        local initCond2 = cell.past[iterator1_stock2]
-                        tempFlow = source_FlowintegrationEuler(f, initCond, a, b, delta, initCond2)
-                    end
-
-                elseif feedbackLoop == true then
-                    --print("iterator1_stock2 == nil AND feedbackLoop == true")
-                    --print("iterator1_stock2 ~= nil AND feedbackLoop == true")
-                    if iterator2_stock ~= nil then
-                        --print("iterator1_stock2 == nil AND feedbackLoop == true AND iterator2_stock ~= nil")
-                        --print("iterator2.cells[UpdPointer].past[iterator2_stock]", iterator2.cells[UpdPointer].past[iterator2_stock])
-                        local initCondIterator2_stock = iterator2.cells[UpdPointer].past[iterator2_stock]
-                        if iterator2_stock2 ~= nil then
-                            --print("iterator1_stock2 == nil AND feedbackLoop == true AND iterator2_stock ~= nil AND terator2_stock2 ~= nil")
-                            --print("iterator2.cells[UpdPointer].past[iterator2_stock2]", iterator2.cells[UpdPointer].past[iterator2_stock2])
-                            local initCondIterator2_stock2 = iterator2.cells[UpdPointer].past[iterator2_stock2]
-                            tempFlow = source_FlowintegrationEuler(f, initCond, a, b, delta, initCondIterator2_stock, initCondIterator2_stock2)
-                        else
-                            --print("initCond = ", initCond, "initCondIterator2_stock = ", initCondIterator2_stock)
-                            tempFlow = source_FlowintegrationEuler(f, initCond, a, b, delta, initCondIterator2_stock)
-                            --print("tempFlow", tempFlow)
-                        end
-                    else
-                        customError("FeedbackLoop can't be calculate without a attribute. Add at least on attirbute to target.")
-                    end
-                else
-                    --print("Flow Padrão!!")
-                    tempFlow = source_FlowintegrationEuler(f, initCond, a, b, delta)
-                end
-                --Flow subtraction
-                --Flow limiter to the stock in the cell
-                if iterator2.cells[UpdPointer] ~= nil then --TRAJECTORY COORETION
-                    if cell[iterator1_stock] > tempFlow or DISABLE_CELL_STOCK_LIMIT then
-                        --print('::iterator1_stock', iterator1_stock, '::cell[iterator1_stock]',cell[iterator1_stock], '::tempFlow',tempFlow)
-                        --print('::UpdPointer', UpdPointer, '::iterator2_stock',iterator2_stock, '::iterator1',iterator1, '::tempFlow', tempFlow)
-                        cell[iterator1_stock] = cell[iterator1_stock] - tempFlow
-                        --Flow sum
-                        --print('::UpdPointer', UpdPointer, '::iterator2_stock',iterator2_stock, '::iterator2',iterator2, '::tempFlow', tempFlow)
-                        --print('::cell', cell)
-                        --print('::iterator2.cells[UpdPointer]', iterator2.cells[1])
-                        --print('::iterator2.cells[UpdPointer][iterator2_stock]', iterator2.cells[1][iterator2_stock])
-                        --print('::iterator2.cells[UpdPointer]', iterator2.cells[2])
-                        --print('::iterator2.cells[UpdPointer][iterator2_stock]', iterator2.cells[2][iterator2_stock])
-                        iterator2.cells[UpdPointer][iterator2_stock] = iterator2.cells[UpdPointer][iterator2_stock] + tempFlow
-                    else
-                        tempFlow = cell[iterator1_stock]
-                        cell[iterator1_stock] = 0
-                        --Soma do Flow
-                        iterator2.cells[UpdPointer][iterator2_stock] = iterator2.cells[UpdPointer][iterator2_stock] + tempFlow
-                    end
-                end
-            end)
-
-            -- FOCAL OR ZONAL - Each cell in a collection transfers part of its attribute stock at
-            -- a rate defined by f (t, y) to the attributes of cells in the
-            -- neighborhood of the spatially corresponding cell of another collection
-            -- Example: Heat dispersion in fire propagation modeling.
-        elseif neight1 == nil and neight2 ~= nil then
-            local findId0 = false;
-            forEachCell(iterator1, function(cell)
-                --print('::cell', cell)
-                --print('::cell:getId()', cell:getId())
-                local UpdPointer = tonumber(cell:getId()) -- +1 --UPDATE DO CABEÇA DE BOI
-                if UpdPointer == 0 or findId0 then
-                    findId0 = true
-                    UpdPointer = UpdPointer + 1
-                end
-                local initCond = cell.past[iterator1_stock]
-                local a = time
-                local b = time + delta
-                --print('::iterator1.cells[UpdPointer]', iterator1.cells[UpdPointer])
-                --print('::iterator2.cells[UpdPointer]', iterator2.cells[UpdPointer])
-                --print('::iterator1.cells[UpdPointer]', iterator1.cells[UpdPointer + 1])
-                --print('::iterator2.cells[UpdPointer]', iterator2.cells[UpdPointer + 1])
-                local neighborhoodDestiny = iterator2.cells[UpdPointer]:getNeighborhood(neight2)
-                local sizeNeighborhoodDestiny = #neighborhoodDestiny
-                local sumWeightNeighborhoodDestiny = 0
-                if sizeNeighborhoodDestiny ~= 0 then
-                    local tempFlow
-                    if iterator1_stock2 ~= nil then
-                        local initCond2 = cell.past[iterator1_stock2]
-                        tempFlow = source_FlowintegrationEuler(f, initCond, a, b, delta, initCond2)
-                    else
-                        tempFlow = source_FlowintegrationEuler(f, initCond, a, b, delta)
-                    end
-                    --Flow subtraction - current time
-                    --Flow limiter to the stock in the cell
-                    if cell[iterator1_stock] > tempFlow or DISABLE_CELL_STOCK_LIMIT then
-                        cell[iterator1_stock] = cell[iterator1_stock] - tempFlow
-                    else
-                        tempFlow = cell[iterator1_stock]
-                        cell[iterator1_stock] = 0
-                    end
-                    forEachNeighbor(iterator2.cells[UpdPointer], neight2, function(_, weight)
-                        sumWeightNeighborhoodDestiny = sumWeightNeighborhoodDestiny + weight
-                    end)
-                    --weighted average
-                    forEachNeighbor(iterator2.cells[UpdPointer], neight2, function(neighbor, weight)
-                        neighbor[iterator2_stock] = neighbor[iterator2_stock] + tempFlow * weight / sumWeightNeighborhoodDestiny
-                    end)
-                end
-            end)
-
-            -- FOCAL OR ZONAL - Each cell from neighborhood of a collection space transfers part of its attribute stock
-            -- at a rate defined by f (t, y) to the cell attribute spatially corresponding to the central cell of the
-            -- neighborhood of another collection. Example: Condensation of water in clouds.
-        elseif neight1 ~= nil and neight2 == nil then
-            local findId0 = false;
-            forEachCell(iterator1, function(cell)
-                local UpdPointer = tonumber(cell:getId()) -- +1 --UPDATE DO CABEÇA DE BOI
-                if UpdPointer == 0 or findId0 then
-                    findId0 = true
-                    UpdPointer = UpdPointer + 1
-                end
-                local a = time
-                local b = time + delta
-                local neighborhoodOrigin = cell:getNeighborhood(neight1)
-                local sizeNeighborhoodOrigin = #neighborhoodOrigin
-                if sizeNeighborhoodOrigin ~= 0 then
-                    forEachNeighbor(cell, neight1, function(neighbor, weight)
-                        local initCond = neighbor.past[iterator1_stock]
-                        local tempFlow
-                        if iterator1_stock2 ~= nil then
-                            local initCond2 = neighbor.past[iterator1_stock2]
-                            tempFlow = source_FlowintegrationEuler(f, initCond, a, b, delta, initCond2)
-                        else
-                            tempFlow = source_FlowintegrationEuler(f, initCond, a, b, delta)
-                        end
-                        --local tempFlow = source_FlowintegrationEuler(f,initCond, a, b, delta)
-                        --Flow limiter to the stock in the cell
-                        if neighbor[iterator1_stock] > tempFlow * weight or DISABLE_CELL_STOCK_LIMIT then
-                            neighbor[iterator1_stock] = neighbor[iterator1_stock] - tempFlow * weight
-                            iterator2.cells[UpdPointer][iterator2_stock] = iterator2.cells[UpdPointer][iterator2_stock] + tempFlow * weight
-                        else
-                            tempFlow = neighbor[iterator1_stock]
-                            neighbor[iterator1_stock] = 0
-                            iterator2.cells[UpdPointer][iterator2_stock] = iterator2.cells[UpdPointer][iterator2_stock] + tempFlow * weight
-                        end
-                    end)
-                end
-            end)
-        elseif neight1 ~= nil and neight2 ~= nil then
-            customErrorMsg("Msg: Operation not yet implemented " .. type(neight2) .. ".", 3)
-        else
-            customErrorMsg("Msg: Operation not yet implemented " .. type(neight2) .. ".", 3)
-        end
-
-        --
-        -- END BLOCO BehavioralRule
-        --
-    else
-        if (iterator1 == nil and iterator2 == nil) then
-            --print ('iterator1 == nil and iterator2 == nil', iterator1, iterator2)
-            -- TODO Nada to Nada
-            customError("Flow from nothing to nothing not implemented! At least one iterator1 is necessary. Add a iterator1 to Flow call.")
-
-            -- BLOCO BehavioralRule
-            --
-            if neight1 == nil and neight2 == nil then
-                customErrorMsg("Msg: Operation not yet implemented " .. type(neight2) .. ".", 3)
-            elseif neight1 == nil and neight2 ~= nil then
-                customErrorMsg("Msg: Operation not yet implemented " .. type(neight2) .. ".", 3)
-            elseif neight1 ~= nil and neight2 == nil then
-                customErrorMsg("Msg: Operation not yet implemented " .. type(neight2) .. ".", 3)
-            elseif neight1 ~= nil and neight2 ~= nil then
-                customErrorMsg("Msg: Operation not yet implemented " .. type(neight2) .. ".", 3)
-            else
-                customErrorMsg("Msg: Operation not yet implemented " .. type(neight2) .. ".", 3)
+-- BehavioralRule(data)
+local function NewBehavioralRule(data)
+    if (data.source.collection ~= nil and data.target.collection ~= nil) then
+        if type(data.source.collection) == "CellularSpace" and type(data.target.collection) == "CellularSpace" then
+            if data.source.neight == nil and data.target.neight == nil then
+                if ssdGlobals.__debugMode then print(data.eventTime, "LocalToLocal(data)") end -- TESTED (ssdLocalLocal.lua)
+                LocalToLocal(data)
+            elseif data.source.neight == nil and data.target.neight ~= nil then
+                if ssdGlobals.__debugMode then print(data.eventTime, "LocalToFocal(data)") end -- TESTED (ssdFireSpreadHeat.lua)
+                LocalToFocal(data)
+            elseif data.source.neight ~= nil and data.target.neight == nil then
+                if ssdGlobals.__debugMode then print(data.eventTime, "FocalToLocal(data)") end -- TESTED (ssdFocalLocal.lua)
+                FocalToLocal(data)
+            elseif data.source.neight ~= nil and data.target.neight ~= nil then
+                if ssdGlobals.__debugMode then print(data.eventTime, "FocalToFocal(data)") end --TESTED (ssdFocalFocal.lua)
+                FocalToFocal(data)
             end
-
-            --
-            -- END BLOCO BehavioralRule
-            --
-
-        elseif (iterator1 == nil) then
-            --print ('iterator1 == nil', iterator1)
-            -- TODO Nada to Collection -- Geracional
-            --
-            -- BLOCO BehavioralRule
-            --
-            if neight1 == nil and neight2 == nil then
-                forEachCell(iterator2, function(cell)
-                    --local UpdPointer = tonumber(cell:getId()) -- +1 --UPDATE DO CABEÇA DE BOI
-                    local initCond = cell.past[iterator2_stock]
-                    local a = time
-                    local b = time + delta
-                    local tempFlow
-                    --local tempFlow = source_FlowintegrationEuler(f,initCond, a, b, delta)
-                    if iterator2_stock2 ~= nil then
-                        local initCond2 = cell.past[iterator2_stock2]
-                        tempFlow = source_FlowintegrationEuler(f, initCond, a, b, delta, initCond2)
-                    else
-                        tempFlow = source_FlowintegrationEuler(f, initCond, a, b, delta)
-                    end
-                    --Flow subtraction --IGNORA
-                    --Flow limiter to the stock in the cell
-                    --if cell[iterator1_stock] > tempFlow then
-                    --cell[iterator1_stock] = cell[iterator1_stock] - tempFlow
-                    --Flow sum
-                    --iterator2.cells[UpdPointer][iterator2_stock] = iterator2.cells[UpdPointer][iterator2_stock] + tempFlow
-                    --else
-                    --tempFlow = cell[iterator1_stock]
-                    --cell[iterator1_stock] = 0
-                    --Soma do Flow
-                    --iterator2.cells[UpdPointer][iterator2_stock] = iterator2.cells[UpdPointer][iterator2_stock] + tempFlow
-                    --end
-                    cell[iterator2_stock] = cell[iterator2_stock] + tempFlow
-                end)
-
-            elseif neight1 == nil and neight2 ~= nil then
-                customErrorMsg("Msg: Operation not yet implemented " .. type(neight2) .. ".", 3)
-            elseif neight1 ~= nil and neight2 == nil then
-                customErrorMsg("Msg: Operation not yet implemented " .. type(neight2) .. ".", 3)
-            elseif neight1 ~= nil and neight2 ~= nil then
-                customErrorMsg("Msg: Operation not yet implemented " .. type(neight2) .. ".", 3)
-            else
-                customErrorMsg("Msg: Operation not yet implemented " .. type(neight2) .. ".", 3)
+        elseif type(data.source.collection) == "CellularSpace" and type(data.target.collection) == "Trajectory" then
+            if data.source.neight == nil and data.target.neight == nil then
+                if ssdGlobals.__debugMode then print(data.eventTime, "LocalToZonal(data)") end --TESTED (ssdLocalZonal.lua)
+                LocalToZonal(data)
+            elseif type(data.source.neight) ~= nil and data.target.neight == nil then
+                if ssdGlobals.__debugMode then print(data.eventTime, "FocalToZonal(data)") end --TESTED (ssdFocalZonal.lua)
+                FocalToZonal(data)
             end
-
-            --
-            -- END BLOCO BehavioralRule
-            --
-
-        else
-            --print ('iterator2 == nil', iterator2)
-            -- TODO Collection to Nada -- Morte
-            --
-            -- BLOCO BehavioralRule
-            --
-            if neight1 == nil and neight2 == nil then
-                forEachCell(iterator1, function(cell)
-                    --local UpdPointer = tonumber(cell:getId()) -- +1 --UPDATE DO CABEÇA DE BOI
-                    local initCond = cell.past[iterator1_stock]
-                    local a = time
-                    local b = time + delta
-                    local tempFlow
-                    --local tempFlow = source_FlowintegrationEuler(f,initCond, a, b, delta)
-                    if iterator1_stock2 ~= nil then
-                        local initCond2 = cell.past[iterator1_stock2]
-                        tempFlow = source_FlowintegrationEuler(f, initCond, a, b, delta, initCond2)
-                    else
-                        tempFlow = source_FlowintegrationEuler(f, initCond, a, b, delta)
-                    end
-                    --Flow subtraction
-                    --Flow limiter to the stock in the cell
-                    if cell[iterator1_stock] > tempFlow then
-                        cell[iterator1_stock] = cell[iterator1_stock] - tempFlow
-                        --Flow sum - IGNORA A SOMA
-                        --iterator2.cells[UpdPointer][iterator2_stock] = iterator2.cells[UpdPointer][iterator2_stock] + tempFlow
-                    else
-                        --tempFlow = cell[iterator1_stock]
-                        cell[iterator1_stock] = 0
-                        --Soma do Flow -- IGNORA A SOMA
-                        --iterator2.cells[UpdPointer][iterator2_stock] = iterator2.cells[UpdPointer][iterator2_stock] + tempFlow
-                    end
-                end)
-
-                -- FOCAL OR ZONAL - Each cell in a collection transfers part of its attribute stock at
-                -- a rate defined by f (t, y) to the attributes of cells in the
-                -- neighborhood of the spatially corresponding cell of another collection
-                -- Example: Heat dispersion in fire propagation modeling.
-
-
-
-            elseif neight1 == nil and neight2 ~= nil then
-                customErrorMsg("Msg: Operation not yet implemented " .. neight2 .. ".", 3)
-            elseif neight1 ~= nil and neight2 == nil then
-                customErrorMsg("Msg: Operation not yet implemented " .. neight2 .. ".", 3)
-            elseif neight1 ~= nil and neight2 ~= nil then
-                customErrorMsg("Msg: Operation not yet implemented " .. neight2 .. ".", 3)
-            else
-                customErrorMsg("Msg: Operation not yet implemented " .. neight2 .. ".", 3)
+        elseif type(data.source.collection) == "Trajectory" and type(data.target.collection) == "CellularSpace" then
+            if data.source.neight == nil and data.target.neight == nil then
+                if ssdGlobals.__debugMode then print(data.eventTime, "ZonalToLocal(data)") end --TESTED (ssdZonalLocal.lua)
+                ZonalToLocal(data)
+            elseif data.source.neight == nil and data.target.neight ~= nil then
+                if ssdGlobals.__debugMode then print(data.eventTime, "ZonalToFocal(data)") end --TESTED (ssdZonalFocal.lua)
+                ZonalToFocal(data)
             end
-
-            --
-            -- END BLOCO BehavioralRule
-            --
-        end
-    end
-end
-
--- @usage synchronizedOptimization(data)
-local function synchronizedOptimization(data)
-    --if (ssdGlobals == nil) then
-    --    ssdGlobals = {}
-    --    ssdGlobals.__deltaT = nil
-    --    ssdGlobals.__CollectionSynchonized = nil
-    --end
-
-    -- print ("ssdGlobals.__deltaT = ",ssdGlobals.__deltaT)
-    if ssdGlobals.__deltaT == nil then
-        ssdGlobals.__deltaT = data.eventTime
-        if (#data.collection.cells > 0) then
-            data.collection:synchronize()
-            ssdGlobals.__CollectionSynchonized = { next = ssdGlobals.__CollectionSynchonized, value = data.collection }
-        end
-    elseif ssdGlobals.__deltaT < data.eventTime then
-        ssdGlobals.__deltaT = data.eventTime
-        if (#data.collection.cells > 0) then
-            data.collection:synchronize()
-            ssdGlobals.__CollectionSynchonized = nil
-            ssdGlobals.__CollectionSynchonized = { next = ssdGlobals.__CollectionSynchonized, value = data.collection }
-        end
-    elseif ssdGlobals.__deltaT == data.eventTime then
-        local alreadySynchronized = false
-        local l = ssdGlobals.__CollectionSynchonized
-        while l do
-            if ssdGlobals.__CollectionSynchonized.value == data.collection then
-                alreadySynchronized = true
+        elseif type(data.source.collection) == "Trajectory" and type(data.target.collection) == "Trajectory" then
+            if data.source.neight == nil and data.target.neight == nil then
+                if ssdGlobals.__debugMode then print(data.eventTime, "ZonalToZonal(data)") end --TESTED (ssdZonalZonal.lua)
+                ZonalToZonal(data)
             end
-            l = l.next
         end
-        if not alreadySynchronized then
-            -- print (data.eventTime, "ssdGlobals.__deltaT == data.eventTime SYNK")
-            if (#data.collection.cells > 0) then
-                data.collection:synchronize()
-                ssdGlobals.__CollectionSynchonized = { next = ssdGlobals.__CollectionSynchonized, value = data.collection }
+    elseif (data.source.collection == nil and data.target.collection ~= nil) then
+        if type(data.target.collection) == "CellularSpace" then
+            if data.target.neight == nil then
+                if ssdGlobals.__debugMode then print(data.eventTime, "NilToLocal(data)") end --TESTED (ssdBiomassGrowth.lua)
+                NilToLocal(data)
+            elseif data.target.neight ~= nil then
+                if ssdGlobals.__debugMode then print(data.eventTime, "NilToFocal(data)") end --TESTED (ssdFlowVerticalNilFocalSustainedOscillationPendulumNeigthTrueWrapFeedBackLoop2.lua)
+                NilToFocal(data)
             end
-            --else
-            -- print (data.eventTime, "Collection already synchronized()")
+        elseif type(data.target.collection) == "Trajectory" then
+            if data.target.neight == nil then
+                if ssdGlobals.__debugMode then print(data.eventTime, "NilToZonal(data)") end --TESTED (ssdBiomassGrowthEmas.lua)
+                NilToZonal(data)
+            end
         end
-    else
-        customError("Erro synchronize optimization.")
+    elseif (data.source.collection ~= nil and data.target.collection == nil) then
+        if type(data.source.collection) == "CellularSpace" then
+            if data.source.neight == nil then
+                if ssdGlobals.__debugMode then print(data.eventTime, "LocalToNil(data)") end --TESTED (ssdLocalNil.lua)
+                LocalToNil(data)
+            elseif type(data.source.neight) ~= nil then
+                if ssdGlobals.__debugMode then print(data.eventTime, "FocalToNil(data)") end --TESTED (ssdFocalNil.lua)
+                FocalToNil(data)
+            end
+        elseif type(data.source.collection) == "Trajectory" then
+            if data.source.neight == nil then
+                if ssdGlobals.__debugMode then print(data.eventTime, "ZonalToNil(data)") end -- TESTED (ssdFireSpreadBurning.lua)
+                ZonalToNil(data)
+            end
+        end
     end
 end
 
@@ -723,50 +814,20 @@ local function verifyFlowData(data)
         customError("Invalid type. Flow only work with Connector, got " .. type(data.target.type) .. ".")
     end
     if data.timer == nil then
-        --data.timer =  Timer() --Solução Pedro
-        --data.timer = ssdGlobals.___userDefinedTimer --Solução Tiago
         data.timer = ssdGlobals.__ssdTimer --Solução Andre
-        --print("data.timer", data.timer)
     end
-    --TIAGO TIMER
-    --[[
-    if (ssdGlobals.___userDefinedTimer == nil) then
-        customError("A Timer should be declare before declaring any FLOW.")
-        return false
-    end
-    ]]
     --    if data.finalTime == nil then
     --        data.finalTime = 5000
     --    end
-    --print ("data.feedbackLoop", data.feedbackLoop)
-    if data.feedbackLoop == nil then
-        data.feedbackLoop = false
-    elseif data.feedbackLoop == true then
-        --print ("data.feedbackLoop", data.feedbackLoop)
-        --print ("data.source", data.source)
-        if data.source == nil then
-            customError("Source is necessary. Add a source to Flow call.")
-        elseif data.source.collection == nil then
-            customError("Collection is nil. FeedbackLoop flow only work with two collections.")
-        end
-        --print ("data.target", data.target)
-        if data.target == nil then
-            customError("Target is necessary. Add a target to Flow call.")
-        elseif data.target.collection == nil then
-            customError("Collection is nil. FeedbackLoop flow only work with two collections.")
-        end
-    end
-    -- Integration interval and steps - AUTO SET
     if data.a == nil then
         data.a = 1
     end
-    if data.b == nil then
-        --data.b = 5000
-    end
+    --if data.b == nil then
+    --data.b = 5000
+    --end
     if data.delta == nil then
         data.delta = 1
     end
-
     --"euler","rungekutta" and "heun"
     if data.method == nil then --TODO implementar os demais métodos
         data.method = "euler"
@@ -779,6 +840,14 @@ local function verifyFlowData(data)
     --	}
 end
 
+
+Flow_ = {
+    type_ = "Flow"
+}
+metaTableFlow_ = {
+    __index = Flow_,
+    __tostring = _Gtme.tostring
+}
 --- A Flow operation represents continuous transference of energy between two spatial Connectors.
 -- The differential equation supplied as the first operator parameter determines the amount of energy.
 -- transferred between regions. (Pre Stage) At the beginning of the simulation, all collections created by the
@@ -894,457 +963,125 @@ function Flow(data)
                     end
                 end
             end
-            if (event:getTime() >= 0) then return false end
-        end
-    })
-    -- (Stage 1) Flow Execution - Behavioral rules (BehavioralRules) are executed, that is,
-    -- TerraME iterates over all cells of the involved collections, applying the differential
-    -- equations (Flows) defined by the modeler that receive the temporary values as
-    -- parameters, the results of the equations are written directly on the attributes of cells;
-    data.timer:add(Event {
-        --start = data.a,  --Argument 'start' could be removed as it is the default value (1).
-        --period = data.delta,
-        priority = 1,
-        action = function(event)
-            io.flush()
-            BehavioralRule(data.rule, event:getTime(), data.delta,
-                data.source.collection, data.source.attribute, data.source.secundaryAttribute, data.source.neight,
-                data.target.collection, data.target.attribute, data.target.secundaryAttribute, data.target.neight,
-                data.feedbackLoop)
-            --print ("event:getTime()", event:getTime(), "data.b", data.b)
-            if (data.b ~= nil) then
-                if (event:getTime() >= data.b) then return false end
+            if (event:getTime() >= 0) then return false
             end
         end
     })
-    -- (Stage 2) Synchronization - Temporary copies of the cells of the collections affected by the Flow
-    -- are updated instantly, causing the changes to be persisted and to be noticed by the next
-    -- computations. All events present in the algorithm remain re-queued until the end time of
-    -- the simulation is reached (timer.currentTime == finalSimulationTime).
-    data.timer:add(Event {
-        --start = data.a, --Argument 'start' could be removed as it is the default value (1).
-        --period = data.delta, --TODO menor granularidade entre os Flows, assim garante que so haverá sincronização
-        -- após o ultimo Flow ser calculado.
-        priority = 9,
-        action = function(event)
-            io.flush()
-            if (data.source ~= nil) then
-                if (data.source.collection ~= nil) then
-                    synchronizedOptimization({ collection = data.source.collection, eventTime = event:getTime() })
-                end
-            end
-            if (data.target ~= nil) then
-                if (data.target.collection ~= nil) then
-                    synchronizedOptimization({ collection = data.target.collection, eventTime = event:getTime() })
-                end
-            end
-            if (data.b ~= nil) then
-                if (event:getTime() >= data.b) then return false end
-            end
-        end
-    })
-end
 
--- TESTE DE FUNCIONAMENTO 1 -- OK--- A Flow operation represents continuous transference of energy between two spatial Connectors.
--- Flow rum creates a Environment and add local timer and global _flowTimer to it and run until finalTime.
--- @arg data.timer local timer.
--- @arg data.finalTime total time of simulation.
--- function FlowRun(data)
--- env = Environment {
--- data.timer,
--- _flowTimerfinalTime
--- }
--- env:run(data.finalTime)
--- end
+    if data.delta ~= 1 then
 
---END
-
---TEST 2 -- ADD NO Timer.Lua
---[[runFlow = function(self, finalTime)
-        mandatoryArgument(1, "number", finalTime)
-
-        print("#timer:self", #self)
-        if finalTime < self.time then
-            local msg = "Simulating until a time (" .. finalTime ..
-                    ") before the current simulation time (" .. self:getTime() .. ")."
-            customWarning(msg)
-        end
-
-        print("#_flowTimer", #_flowTimer)
-        if #_flowTimer < 1 then
-            local msg = "No events on _flowTimer."
-            customWarning(msg)
-            local flowEnvironment = Environment {
-                self
-            }
-            flowEnvironment:run(finalTime)
-        else
-            local flowEnvironment = Environment {
-                self,
-                _flowTimer
-            }
-            flowEnvironment:run(finalTime)
-        end
-    end,]]
---
-
-
---DONT running
---[[
-Timer_ = {
-    super = {Timer},
-    runFlow = function(self, finalTime)
-        mandatoryArgument(1, "number", finalTime)
-
-        print("#timer:self", #self)
-        if finalTime < self.time then
-            local msg = "Simulating until a time (" .. finalTime ..
-                    ") before the current simulation time (" .. self:getTime() .. ")."
-            customWarning(msg)
-        end
-
-        print("#_flowTimer", #_flowTimer)
-        if #_flowTimer < 1 then
-            local msg = "No events on _flowTimer."
-            customWarning(msg)
-            local flowEnvironment = Environment {
-                self
-            }
-            flowEnvironment:run(finalTime)
-        else
-            local flowEnvironment = Environment {
-                self,
-                _flowTimer
-            }
-            flowEnvironment:run(finalTime)
-        end
-    end,
-}]]
-
-
---BLOCO TIAGO REMOVIDO
---[[
-
--- To overload Timer factory keeping compatibility with previows models, it is necessary to save the original Timer factory before
--- Creates a global timer where the flow events will be storeged ___userDefinedTimer.
--- @usage DONTRUN
-ssdGlobals.___oldTimerFactory = Timer
---___oldTimerFactory = Timer
-
---print("Timer", Timer, type(Timer))  -- uncomment this line to understand what I am doing
---- Creates a global timer where the flow events will be storeged ___userDefinedTimer.
--- @arg data.... A set of Events.
--- @usage timer = Timer{
--- Event{action = function()
--- print("each time step")
--- end},
--- Event{period = 2, action = function()
--- print("each two time steps")
--- end},
--- Event{priority = "high", period = 4, action = function()
--- print("each four time steps")
--- end}
--- }
---
--- timer:run(10)
-Timer = function(data) -- overloading
-    --Timer = function(self, eventsTable) -- overloading
-
-    if (ssdGlobals == nil) then
-        ssdGlobals = {}
-        ssdGlobals.__deltaT = nil
-        ssdGlobals.__CollectionSynchonized = nil
-        ssdGlobals.___oldTimerFactory = Timer
-    end
-    -- save in a global variable the user defined Timer
-    -- NOTE: it will always save the last user define Timer
-    --ssdGlobals = {}
-    ssdGlobals.___userDefinedTimer = self
-    ssdGlobals.___userDefinedTimer = ssdGlobals.___oldTimerFactory(data)
-    --___userDefinedTimer = ___oldTimerFactory(self, eventsTable)
-
-    return ssdGlobals.___userDefinedTimer
-end
-
-]]
-
-
--- Run the Timer until a given final time. It manages the Event queue according to their execution
--- times and priorities. The Event with lower time will be executed in each step. If there are two
--- Events to be executed at the same time, it executes the one with lower priority. If both have
--- the same priority, it executes the one that was scheuled first for that time.
--- In order to activate an Event, the Timer executes its action, passing the Event itself as argument.
--- If the action of the Event does not return false, the Event is scheduled to execute again according to
--- its period. The Timer then repeats its execution again and again. It stops only when all its
--- Events are scheduled to execute after the final time, or when there are no remaining Events.
--- @arg finalTime A number representing the final time of the simulation.
--- This argument is mandatory.
--- @usage timer = Timer{
--- Event{action = function() print("step") end}
--- }
---
--- timer:run(10)
---[[
-
-
-function Timer:run2(self, finalTime)
-    print("TEST RUN")
-    if (ssdGlobals ~= nil) then
-        if (ssdGlobals.__ssdTimer ~= nil) then
-            forEachOrderedElement(ssdGlobals.__ssdTimer:getEvents(), function(idx, value, mtype)
-                if mtype == "Event" then
-                    self:add(value)
-                else
-                    incompatibleTypeError(idx, "Event", value)
-                end
-            end)
-            --ssdGlobals = nil
-            ssdGlobals.__ssdTimer:clear()
-            ssdGlobals.__ssdTimer:reset()
-        end
-    end
-end
-
-]]
-
---oldFunction = Timer.run --store old
-
---[[
-
-___oldTimerFactory = Timer
-Timer.run = function(self, finalTime) --overwrite the old function
-    print("TEST RUN")
-    if (ssdGlobals ~= nil) then
-        if (ssdGlobals.__ssdTimer ~= nil) then
-            forEachOrderedElement(ssdGlobals.__ssdTimer:getEvents(), function(idx, value, mtype)
-                if mtype == "Event" then
-                    self:add(value)
-                else
-                    incompatibleTypeError(idx, "Event", value)
-                end
-            end)
-            --ssdGlobals = nil
-            ssdGlobals.__ssdTimer:clear()
-            ssdGlobals.__ssdTimer:reset()
-        end
-    end
-
-    mandatoryArgument(1, "number", finalTime)
-
-    if finalTime < self.time then
-        local msg = "Simulating until a time (" .. finalTime ..
-                ") before the current simulation time (" .. self:getTime() .. ")."
-        customWarning(msg)
-    end
-
-    while true do
-        if getn(self.events) == 0 then return end
-
-        local ev = self.events[1]
-        if ev.time > finalTime then
-            self.time = finalTime
-            return
-        end
-
-        self.time = ev.time
-
-        table.remove(self.events, 1)
-
-        local result = ev.action(ev, self)
-
-        if result == false or ev.period == 0 then
-            ev.parent = nil
-        else
-            ev.time = ev.time + ev.period
-
-            local floor = math.floor(ev.time)
-            local ceil = math.ceil(ev.time)
-
-            if math.abs(ev.time - floor) < sessionInfo().round then
-                ev.time = floor
-            elseif math.abs(ev.time - ceil) < sessionInfo().round then
-                ev.time = ceil
-            end
-            self:add(ev)
-        end
-    end
-end
-]]
-
---[[
-
-___oldTimerFactory = Timer
-Timer = function(data) -- overloading
-    --Timer = function(self, eventsTable) -- overloading
-    -- save in a global variable the user defined Timer
-    -- NOTE: it will always save the last user define Timer
-    --ssdGlobals = {}
-    run = function(self, finalTime)
-        print("TEST RUN")
-        if (ssdGlobals ~= nil) then
-            if (ssdGlobals.__ssdTimer ~= nil) then
-                forEachOrderedElement(ssdGlobals.__ssdTimer:getEvents(), function(idx, value, mtype)
-                    if mtype == "Event" then
-                        self:add(value)
-                    else
-                        incompatibleTypeError(idx, "Event", value)
+        -- (Stage 1) Flow Execution - Behavioral rules (BehavioralRules) are executed, that is,
+        -- TerraME iterates over all cells of the involved collections, applying the differential
+        -- equations (Flows) defined by the modeler that receive the temporary values as
+        -- parameters, the results of the equations are written directly on the attributes of cells;
+        data.timer:add(Event {
+            --start = data.a,  --Argument 'start' could be removed as it is the default value (1).
+            period = data.delta,
+            priority = 1,
+            action = function(event)
+                io.flush()
+                data.eventTime = event:getTime()
+                NewBehavioralRule(data)
+                if (data.b ~= nil) then
+                    if (event:getTime() >= data.b) then return false
                     end
-                end)
-                --ssdGlobals = nil
-                ssdGlobals.__ssdTimer:clear()
-                ssdGlobals.__ssdTimer:reset()
-            end
-        end
-
-        mandatoryArgument(1, "number", finalTime)
-
-        if finalTime < self.time then
-            local msg = "Simulating until a time (" .. finalTime ..
-                    ") before the current simulation time (" .. self:getTime() .. ")."
-            customWarning(msg)
-        end
-
-        while true do
-            if getn(self.events) == 0 then return end
-
-            local ev = self.events[1]
-            if ev.time > finalTime then
-                self.time = finalTime
-                return
-            end
-
-            self.time = ev.time
-
-            table.remove(self.events, 1)
-
-            local result = ev.action(ev, self)
-
-            if result == false or ev.period == 0 then
-                ev.parent = nil
-            else
-                ev.time = ev.time + ev.period
-
-                local floor = math.floor(ev.time)
-                local ceil = math.ceil(ev.time)
-
-                if math.abs(ev.time - floor) < sessionInfo().round then
-                    ev.time = floor
-                elseif math.abs(ev.time - ceil) < sessionInfo().round then
-                    ev.time = ceil
                 end
-                self:add(ev)
             end
-        end
+        })
+        -- (Stage 2) Synchronization - Temporary copies of the cells of the collections affected by the Flow
+        -- are updated instantly, causing the changes to be persisted and to be noticed by the next
+        -- computations. All events present in the algorithm remain re-queued until the end time of
+        -- the simulation is reached (timer.currentTime == finalSimulationTime).
+        data.timer:add(Event {
+            --start = data.a, --Argument 'start' could be removed as it is the default value (1).
+            period = data.delta, --TODO menor granularidade entre os Flows, assim garante que so haverá sincronização
+            priority = 9, --Garatnti that will computed only after every flow of the event time
+            action = function(event)
+                io.flush()
+                if (data.source ~= nil) then
+                    if (data.source.collection ~= nil) then
+                        --synchronizedOptimization({ collection = data.source.collection, eventTime = event:getTime() })
+                        if (#data.source.collection.cells > 0) then
+                            data.source.collection:synchronize()
+                        end
+                    end
+                end
+                if (data.target ~= nil) then
+                    if (data.target.collection ~= nil) then
+                        --synchronizedOptimization({ collection = data.target.collection, eventTime = event:getTime() })
+                        if (#data.target.collection.cells > 0) then
+                            data.target.collection:synchronize()
+                        end
+                    end
+                end
+                if (data.b ~= nil) then
+                    if (event:getTime() >= data.b) then return false
+                    end
+                end
+            end
+        })
+
+    else
+
+        -- (Stage 1) Flow Execution - Behavioral rules (BehavioralRules) are executed, that is,
+        -- TerraME iterates over all cells of the involved collections, applying the differential
+        -- equations (Flows) defined by the modeler that receive the temporary values as
+        -- parameters, the results of the equations are written directly on the attributes of cells;
+        data.timer:add(Event {
+            --start = data.a,  --Argument 'start' could be removed as it is the default value (1).
+            --period = data.delta,
+            priority = 1,
+            action = function(event)
+                io.flush()
+                data.eventTime = event:getTime()
+                NewBehavioralRule(data)
+                if (data.b ~= nil) then
+                    if (event:getTime() >= data.b) then return false
+                    end
+                end
+            end
+        })
+        -- (Stage 2) Synchronization - Temporary copies of the cells of the collections affected by the Flow
+        -- are updated instantly, causing the changes to be persisted and to be noticed by the next
+        -- computations. All events present in the algorithm remain re-queued until the end time of
+        -- the simulation is reached (timer.currentTime == finalSimulationTime).
+        data.timer:add(Event {
+            --start = data.a, --Argument 'start' could be removed as it is the default value (1).
+            --period = data.delta, --TODO menor granularidade entre os Flows, assim garante que so haverá sincronização
+            priority = 9, --Garatnti that will computed only after every flow of the event time
+            action = function(event)
+                io.flush()
+                if (data.source ~= nil) then
+                    if (data.source.collection ~= nil) then
+                        --synchronizedOptimization({ collection = data.source.collection, eventTime = event:getTime() })
+                        if (#data.source.collection.cells > 0) then
+                            data.source.collection:synchronize()
+                        end
+                    end
+                end
+                if (data.target ~= nil) then
+                    if (data.target.collection ~= nil) then
+                        --synchronizedOptimization({ collection = data.target.collection, eventTime = event:getTime() })
+                        if (#data.target.collection.cells > 0) then
+                            data.target.collection:synchronize()
+                        end
+                    end
+                end
+                if (data.b ~= nil) then
+                    if (event:getTime() >= data.b) then return false
+                    end
+                end
+            end
+        })
     end
-
-    local overridedTimer = self
-    overridedTimer = ___oldTimerFactory(data)
-    --___userDefinedTimer = ___oldTimerFactory(self, eventsTable)
-
-    return overridedTimer
+    setmetatable(data, metaTableFlow_)
 end
-
-]]
-
 
 --[[
-
-Timer = function(data) -- overloading
-
-    run = function(self, finalTime)
-        print("TEST RUN")
-        if (ssdGlobals ~= nil) then
-            if (ssdGlobals.__ssdTimer ~= nil) then
-                forEachOrderedElement(ssdGlobals.__ssdTimer:getEvents(), function(idx, value, mtype)
-                    if mtype == "Event" then
-                        self:add(value)
-                    else
-                        incompatibleTypeError(idx, "Event", value)
-                    end
-                end)
-                --ssdGlobals = nil
-                ssdGlobals.__ssdTimer:clear()
-                ssdGlobals.__ssdTimer:reset()
-            end
-        end
-
-        mandatoryArgument(1, "number", finalTime)
-
-        if finalTime < self.time then
-            local msg = "Simulating until a time (" .. finalTime ..
-                    ") before the current simulation time (" .. self:getTime() .. ")."
-            customWarning(msg)
-        end
-
-        while true do
-            if getn(self.events) == 0 then return end
-
-            local ev = self.events[1]
-            if ev.time > finalTime then
-                self.time = finalTime
-                return
-            end
-
-            self.time = ev.time
-
-            table.remove(self.events, 1)
-
-            local result = ev.action(ev, self)
-
-            if result == false or ev.period == 0 then
-                ev.parent = nil
-            else
-                ev.time = ev.time + ev.period
-
-                local floor = math.floor(ev.time)
-                local ceil = math.ceil(ev.time)
-
-                if math.abs(ev.time - floor) < sessionInfo().round then
-                    ev.time = floor
-                elseif math.abs(ev.time - ceil) < sessionInfo().round then
-                    ev.time = ceil
-                end
-                self:add(ev)
-            end
-        end
-    end
-
-    return Timer
-end
-]]
-
 oldTimer_ = Timer_ --store old
---- Run the Timer until a given final time. It manages the Event queue according to their execution
--- times and priorities. The Event with lower time will be executed in each step. If there are two
--- Events to be executed at the same time, it executes the one with lower priority. If both have
--- the same priority, it executes the one that was scheuled first for that time.
--- In order to activate an Event, the Timer executes its action, passing the Event itself as argument.
--- If the action of the Event does not return false, the Event is scheduled to execute again according to
--- its period. The Timer then repeats its execution again and again. It stops only when all its
--- Events are scheduled to execute after the final time, or when there are no remaining Events.
--- @arg finalTime A number representing the final time of the simulation.
--- This argument is mandatory.
--- @usage DONTRUN
--- timer = Timer{
--- Event{action = function() print("step") end}
--- }
---
--- timer:run(10)
 Timer_.run = function(self, finalTime) --overwrite the old function
-    if (ssdGlobals ~= nil) then
-        if (ssdGlobals.__ssdTimer ~= nil) then
-            forEachOrderedElement(ssdGlobals.__ssdTimer:getEvents(), function(idx, value, mtype)
-                if mtype == "Event" then
-                    self:add(value)
-                else
-                    incompatibleTypeError(idx, "Event", value)
-                end
-            end)
-            --ssdGlobals = nil
-            ssdGlobals.__ssdTimer:clear()
-            ssdGlobals.__ssdTimer:reset()
-        end
-    end
+
+    addFlowEvents(self)
 
     mandatoryArgument(1, "number", finalTime)
 
@@ -1355,7 +1092,8 @@ Timer_.run = function(self, finalTime) --overwrite the old function
     end
 
     while true do
-        if getn(self.events) == 0 then return end
+        if getn(self.events) == 0 then return
+        end
 
         local ev = self.events[1]
         if ev.time > finalTime then
@@ -1386,3 +1124,5 @@ Timer_.run = function(self, finalTime) --overwrite the old function
         end
     end
 end
+]]
+

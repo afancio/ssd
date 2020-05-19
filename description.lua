@@ -1,6 +1,6 @@
 package = "ssd"
-version = "0.7"
-date = "22 April 2020"
+version = "0.9"
+date = "19 Junho 2020"
 license = "GPL"
 depends = "terrame (>= 2.0)"
 title = "ssd - Spatial System Dynamics"
