@@ -10,12 +10,16 @@
 -- 2) Biomass burn that changes the biomass stats to BURNING and then BURNED.
 -- @image ssdFireSpreadEmas.bmp
 
-import("ssd")
---dofile("../lua/Flow.lua")
---dofile("../lua/Connector.lua")
+--import("ssd")
+dofile("../lua/Flow.lua")
+dofile("../lua/Connector.lua")
+dofile("../lua/Timer.lua")
+dofile("../lua/GENERATE_MAPS.lua")
 
 -- automaton states
 NODATA = 0
+BURNED = 0.01
+BURNING = 0.1
 BIOMASS1 = 1
 BIOMASS2 = 2
 BIOMASS3 = 3
@@ -23,8 +27,7 @@ BIOMASS4 = 4
 BIOMASS5 = 5
 RIVER = 6
 FIREBREAK = 7
-BURNING = 25
-BURNED = 50
+
 
 -- probability matrix according to the levels of forest
 -- I[X][Y] is the probability of a burning cell with BIOMASSX
@@ -44,7 +47,11 @@ cell = Cell {
     heat = 0,
     heat_state = "NO_HEAT",
     execute = function(cell)
-        if cell.state >= BIOMASS1 and cell.state < BIOMASS2 then
+        if cell.state > NODATA and cell.state < BURNING then
+            cell.state2 = BURNED
+        elseif cell.state >= BURNING and cell.state < BIOMASS1 then
+            cell.state2 = BURNING
+        elseif cell.state >= BIOMASS1 and cell.state < BIOMASS2 then
             cell.state2 = BIOMASS1
         elseif cell.state >= BIOMASS2 and cell.state < BIOMASS3 then
             cell.state2 = BIOMASS2
@@ -54,10 +61,6 @@ cell = Cell {
             cell.state2 = BIOMASS4
         elseif cell.state >= BIOMASS5 and cell.state < RIVER then
             cell.state2 = BIOMASS5
-        elseif cell.state >= BURNING and cell.state < BURNED then
-            cell.state2 = BURNING
-        elseif cell.state >= BURNED then
-            cell.state2 = BURNED
         else cell.state2 = cell.state
         end
 
@@ -156,13 +159,23 @@ timer = Timer {
     Event { action = map2 },
     --SAVE MAP DURING THE SIMULATION
     --    Event {start = 1,
-    --        --period = 1,
+    --        period = 1,
     --        priority = 8,
     --        action = function(event)
     --            map2:save("SAVES/FS1M1_" .. event:getTime() .. ".bmp")
     --            if (event:getTime() >= 60) then return false end
     --        end
     --    },
+}
+
+GENERATE_MAPS{
+	experimentName = "FIRESPREADEMAS", --chartsummary2:save("SAVES/"..EXPERIMENT_NAME.."/
+	mapInitialTime = 1,
+	mapFinalTime = 50,
+	mapPeriod = 1,
+	beggin_saveList = {map2},
+	during_saveList = {map2},
+	end_saveList = {map2}
 }
 
 ---------------------------------------------------------------
@@ -177,7 +190,6 @@ eachBiomassCell_Trajectory = Connector {
 ---------------------------------------------------------------
 -- CHANGE RATES AND RULES
 growthRate = 0.1
---funcGrouwth = function(t, stock) return growthRate end
 funcGrouwth = function(t, sourceCell, targetCell, neighborSourceCell, neighborTargetCell)
     return growthRate * targetCell.state
 end
@@ -203,7 +215,6 @@ neightOfEachHeatGroundCell = Connector {
 ---------------------------------------------------------------
 -- CHANGE RATES AND RULES
 heatdispersion_rate = 0.99
---funcHeatDisper = function(t, stock) return heatdispersion_rate * stock end
 funcHeatDisper = function(t, sourceCell, targetCell, neighborSourceCell, neighborTargetCell)
     return heatdispersion_rate * sourceCell.heat
 end
@@ -224,18 +235,17 @@ eachStateFireborderTrajectory = Connector {
 }
 ---------------------------------------------------------------
 -- CHANGE RATES AND RULES
-biomassBurnRate = 25
+biomassBurnRate = 0.9
 --funcBiomassBurn = function(t, stock) return biomassBurnRate end
 funcBiomassBurn = function(t, sourceCell, targetCell, neighborSourceCell, neighborTargetCell)
-    return biomassBurnRate
+    return biomassBurnRate * sourceCell.state
 end
 ---------------------------------------------------------------
 -- Flow OPERATORS
 Flow {
     rule = funcBiomassBurn,
-    source = nil,
-    target = eachStateFireborderTrajectory
+    source = eachStateFireborderTrajectory,
+    target = nil
 }
-
 timer:run(50)
 --ssdGlobals = nil

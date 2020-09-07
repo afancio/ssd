@@ -297,7 +297,7 @@ end
 --     end
 --end)
 local function LocalToZonal(data)
-
+    --print (":::::::::::::::::::::::::::::::LocalToZonal TEST")
     local findId0 = false; --Database collection corretion
 
     forEachCell(data.target.collection, function(cell) --danger (inverted souce and target)
@@ -314,8 +314,8 @@ local function LocalToZonal(data)
             local change = newFlowintegrationEulerStep(data.rule, data.eventTime, data.eventTime + data.delta, data.delta,
                 data.source.collection.cells[cellTargetPastId].past, cell.past, nil, nil) -- (inverted souce and target)
 
-            data.source.collection.cells[cellTargetPastId][data.target.attribute] =
-            data.source.collection.cells[cellTargetPastId][data.target.attribute]
+            data.source.collection.cells[cellTargetPastId][data.source.attribute] =
+            data.source.collection.cells[cellTargetPastId][data.source.attribute]
                     - change --danger (inverted source and target)
 
             cell[data.target.attribute] = cell[data.target.attribute] + change --danger (inverted souce and target)
